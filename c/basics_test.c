@@ -89,10 +89,10 @@ static void test_common_prefix(void)
 
 int basics_test_main(int argc, const char *argv[])
 {
-	test_common_prefix();
-	test_parse_names_normal();
-	test_parse_names_drop_empty();
-	test_binsearch();
-	test_names_length();
+	RUN_TEST(test_common_prefix);
+	RUN_TEST(test_parse_names_normal);
+	RUN_TEST(test_parse_names_drop_empty);
+	RUN_TEST(test_binsearch);
+	RUN_TEST(test_names_length);
 	return 0;
 }

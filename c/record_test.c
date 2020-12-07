@@ -385,14 +385,14 @@ static void test_reftable_index_record_roundtrip(void)
 
 int record_test_main(int argc, const char *argv[])
 {
-	test_reftable_log_record_equal();
-	test_reftable_log_record_roundtrip();
-	test_reftable_ref_record_roundtrip();
-	test_varint_roundtrip();
-	test_key_roundtrip();
-	test_common_prefix();
-	test_reftable_obj_record_roundtrip();
-	test_reftable_index_record_roundtrip();
-	test_u24_roundtrip();
+	RUN_TEST(test_reftable_log_record_equal);
+	RUN_TEST(test_reftable_log_record_roundtrip);
+	RUN_TEST(test_reftable_ref_record_roundtrip);
+	RUN_TEST(test_varint_roundtrip);
+	RUN_TEST(test_key_roundtrip);
+	RUN_TEST(test_common_prefix);
+	RUN_TEST(test_reftable_obj_record_roundtrip);
+	RUN_TEST(test_reftable_index_record_roundtrip);
+	RUN_TEST(test_u24_roundtrip);
 	return 0;
 }

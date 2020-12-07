@@ -335,9 +335,9 @@ static void test_default_write_opts(void)
 
 int merged_test_main(int argc, const char *argv[])
 {
-	test_merged_between();
-	test_pq();
-	test_merged();
-	test_default_write_opts();
+	RUN_TEST(test_merged_between);
+	RUN_TEST(test_pq);
+	RUN_TEST(test_merged);
+	RUN_TEST(test_default_write_opts);
 	return 0;
 }

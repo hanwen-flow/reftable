@@ -39,6 +39,11 @@ https://developers.google.com/open-source/licenses/bsd
 		abort();                                                   \
 	}
 
+#define RUN_TEST(f)                          \
+	fprintf(stderr, "running %s\n", #f); \
+	fflush(stderr);                      \
+	f();
+
 void set_test_hash(uint8_t *p, int i);
 
 /* Like strbuf_add, but suitable for passing to reftable_new_writer

@@ -116,6 +116,6 @@ static void test_block_read_write(void)
 
 int block_test_main(int argc, const char *argv[])
 {
-	test_block_read_write();
+	RUN_TEST(test_block_read_write);
 	return 0;
 }

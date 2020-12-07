@@ -97,6 +97,6 @@ static void test_conflict(void)
 
 int refname_test_main(int argc, const char *argv[])
 {
-	test_conflict();
+	RUN_TEST(test_conflict);
 	return 0;
 }

@@ -777,27 +777,27 @@ static void test_reftable_stack_auto_compaction(void)
 
 int stack_test_main(int argc, const char *argv[])
 {
-	test_reftable_stack_uptodate();
-	test_reftable_stack_transaction_api();
-	test_reftable_stack_hash_id();
-	test_sizes_to_segments_all_equal();
-	test_reftable_stack_auto_compaction();
-	test_reftable_stack_validate_refname();
-	test_reftable_stack_update_index_check();
-	test_reftable_stack_lock_failure();
-	test_reftable_stack_log_normalize();
-	test_reftable_stack_tombstone();
-	test_reftable_stack_add_one();
-	test_empty_add();
-	test_reflog_expire();
-	test_suggest_compaction_segment();
-	test_suggest_compaction_segment_nothing();
-	test_sizes_to_segments();
-	test_sizes_to_segments_empty();
-	test_log2();
-	test_parse_names();
-	test_read_file();
-	test_names_equal();
-	test_reftable_stack_add();
+	RUN_TEST(test_reftable_stack_uptodate);
+	RUN_TEST(test_reftable_stack_transaction_api);
+	RUN_TEST(test_reftable_stack_hash_id);
+	RUN_TEST(test_sizes_to_segments_all_equal);
+	RUN_TEST(test_reftable_stack_auto_compaction);
+	RUN_TEST(test_reftable_stack_validate_refname);
+	RUN_TEST(test_reftable_stack_update_index_check);
+	RUN_TEST(test_reftable_stack_lock_failure);
+	RUN_TEST(test_reftable_stack_log_normalize);
+	RUN_TEST(test_reftable_stack_tombstone);
+	RUN_TEST(test_reftable_stack_add_one);
+	RUN_TEST(test_empty_add);
+	RUN_TEST(test_reflog_expire);
+	RUN_TEST(test_suggest_compaction_segment);
+	RUN_TEST(test_suggest_compaction_segment_nothing);
+	RUN_TEST(test_sizes_to_segments);
+	RUN_TEST(test_sizes_to_segments_empty);
+	RUN_TEST(test_log2);
+	RUN_TEST(test_parse_names);
+	RUN_TEST(test_read_file);
+	RUN_TEST(test_names_equal);
+	RUN_TEST(test_reftable_stack_add);
 	return 0;
 }

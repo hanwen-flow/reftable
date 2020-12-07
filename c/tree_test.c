@@ -56,6 +56,6 @@ static void test_tree(void)
 
 int tree_test_main(int argc, const char *argv[])
 {
-	test_tree();
+	RUN_TEST(test_tree);
 	return 0;
 }

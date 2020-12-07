@@ -564,17 +564,17 @@ static void test_table_empty(void)
 
 int reftable_test_main(int argc, const char *argv[])
 {
-	test_log_write_read();
-	test_table_read_write_seek_linear_sha256();
-	test_log_buffer_size();
-	test_table_write_small_table();
-	test_buffer();
-	test_table_read_api();
-	test_table_read_write_sequential();
-	test_table_read_write_seek_linear();
-	test_table_read_write_seek_index();
-	test_table_refs_for_no_index();
-	test_table_refs_for_obj_index();
-	test_table_empty();
+	RUN_TEST(test_log_write_read);
+	RUN_TEST(test_table_read_write_seek_linear_sha256);
+	RUN_TEST(test_log_buffer_size);
+	RUN_TEST(test_table_write_small_table);
+	RUN_TEST(test_buffer);
+	RUN_TEST(test_table_read_api);
+	RUN_TEST(test_table_read_write_sequential);
+	RUN_TEST(test_table_read_write_seek_linear);
+	RUN_TEST(test_table_read_write_seek_index);
+	RUN_TEST(test_table_refs_for_no_index);
+	RUN_TEST(test_table_refs_for_obj_index);
+	RUN_TEST(test_table_empty);
 	return 0;
 }

@@ -32,6 +32,6 @@ static void test_strbuf(void)
 
 int strbuf_test_main(int argc, const char *argv[])
 {
-	test_strbuf();
+	RUN_TEST(test_strbuf);
 	return 0;
 }
