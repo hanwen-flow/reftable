@@ -413,8 +413,11 @@ func (s *Stack) checkAddition(tabname string) error {
 	return validateRefRecordAddition(s.Merged(), recs)
 }
 
+// non-deterministic random generator.
+var randomRandom = rand.New(rand.NewSource(time.Now().UnixNano()))
+
 func formatName(min, max uint64) string {
-	return fmt.Sprintf("0x%012x-0x%012x", min, max)
+	return fmt.Sprintf("0x%012x-0x%012x-%08x", min, max, randomRandom.Uint32())
 }
 
 // NextUpdateIndex returns the update index at which to write the next table.

@@ -389,7 +389,12 @@ int reftable_stack_add(struct reftable_stack *st,
 static void format_name(struct strbuf *dest, uint64_t min, uint64_t max)
 {
 	char buf[100];
-	snprintf(buf, sizeof(buf), "0x%012" PRIx64 "-0x%012" PRIx64, min, max);
+	struct timeval tv = { 0 };
+	static uint64_t rnd64;
+	gettimeofday(&tv, NULL);
+	rnd64 ^= ((uint64_t)tv.tv_usec << 16) ^ tv.tv_sec ^ getpid();
+	snprintf(buf, sizeof(buf), "0x%012" PRIx64 "-0x%012" PRIx64 "-%08x",
+		 min, max, (uint32_t)(rnd64 ^ (rnd64 >> 32)));
 	strbuf_reset(dest);
 	strbuf_addstr(dest, buf);
 }
