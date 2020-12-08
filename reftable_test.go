@@ -29,7 +29,7 @@ func TestTableObjectIDLen(t *testing.T) {
 		h := bytes.Repeat([]byte{'~'}, sha1.Size)
 		h[4] = byte(i)
 
-		refName := string('a'+i) + suffix
+		refName := string(rune('a'+i)) + suffix
 		refs = append(refs, RefRecord{
 			RefName: refName,
 			Value:   h,
