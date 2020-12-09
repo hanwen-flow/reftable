@@ -389,12 +389,9 @@ int reftable_stack_add(struct reftable_stack *st,
 static void format_name(struct strbuf *dest, uint64_t min, uint64_t max)
 {
 	char buf[100];
-	struct timeval tv = { 0 };
-	static uint64_t rnd64;
-	gettimeofday(&tv, NULL);
-	rnd64 ^= ((uint64_t)tv.tv_usec << 16) ^ tv.tv_sec ^ getpid();
+	uint32_t rnd = (uint32_t)rand();
 	snprintf(buf, sizeof(buf), "0x%012" PRIx64 "-0x%012" PRIx64 "-%08x",
-		 min, max, (uint32_t)(rnd64 ^ (rnd64 >> 32)));
+		 min, max, rnd);
 	strbuf_reset(dest);
 	strbuf_addstr(dest, buf);
 }
@@ -643,7 +640,10 @@ int reftable_addition_add(struct reftable_addition *add,
 	strbuf_addstr(&tab_file_name, "/");
 	strbuf_addbuf(&tab_file_name, &next_name);
 
-	/* TODO: should check destination out of paranoia */
+	/*
+	  On windows, this relies on rand() picking a unique destination name.
+	  Maybe we should do retry loop as well?
+	 */
 	err = rename(temp_tab_file_name.buf, tab_file_name.buf);
 	if (err < 0) {
 		err = REFTABLE_IO_ERROR;
@@ -952,6 +952,7 @@ static int stack_compact_range(struct reftable_stack *st, int first, int last,
 	strbuf_addbuf(&new_table_path, &new_table_name);
 
 	if (!is_empty_table) {
+		/* retry? */
 		err = rename(temp_tab_file_name.buf, new_table_path.buf);
 		if (err < 0) {
 			err = REFTABLE_IO_ERROR;

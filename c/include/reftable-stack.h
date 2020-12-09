@@ -18,6 +18,10 @@ https://developers.google.com/open-source/licenses/bsd
 
  * The reftable_stack automatically compacts files on disk to ensure good
  * amortized performance.
+ *
+ * For windows and other platforms that cannot have open files as rename
+ * destinations, concurrent access from multiple processes needs the rand()
+ * random seed to be randomized.
  */
 struct reftable_stack;
 
