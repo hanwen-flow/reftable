@@ -590,13 +590,22 @@ void reftable_log_record_print(struct reftable_log_record *log,
 {
 	char hex[SHA256_SIZE + 1] = { 0 };
 
-	printf("log{%s(%" PRIu64 ") %s <%s> %" PRIu64 " %04d\n", log->refname,
-	       log->update_index, log->name, log->email, log->time,
-	       log->tz_offset);
-	hex_format(hex, log->old_hash, hash_size(hash_id));
-	printf("%s => ", hex);
-	hex_format(hex, log->new_hash, hash_size(hash_id));
-	printf("%s\n\n%s\n}\n", hex, log->message);
+	switch (log->value_type) {
+	case REFTABLE_LOG_DELETION:
+		printf("log{%s(%" PRIu64 ") delete", log->refname,
+		       log->update_index);
+		break;
+	case REFTABLE_LOG_UPDATE:
+		printf("log{%s(%" PRIu64 ") %s <%s> %" PRIu64 " %04d\n",
+		       log->refname, log->update_index, log->update.name,
+		       log->update.email, log->update.time,
+		       log->update.tz_offset);
+		hex_format(hex, log->update.old_hash, hash_size(hash_id));
+		printf("%s => ", hex);
+		hex_format(hex, log->update.new_hash, hash_size(hash_id));
+		printf("%s\n\n%s\n}\n", hex, log->update.message);
+		break;
+	}
 }
 
 static void reftable_log_record_key(const void *r, struct strbuf *dest)
@@ -626,23 +635,31 @@ static void reftable_log_record_copy_from(void *rec, const void *src_rec,
 	if (dst->refname != NULL) {
 		dst->refname = xstrdup(dst->refname);
 	}
-	if (dst->email != NULL) {
-		dst->email = xstrdup(dst->email);
-	}
-	if (dst->name != NULL) {
-		dst->name = xstrdup(dst->name);
-	}
-	if (dst->message != NULL) {
-		dst->message = xstrdup(dst->message);
-	}
+	switch (dst->value_type) {
+	case REFTABLE_LOG_DELETION:
+		break;
+	case REFTABLE_LOG_UPDATE:
+		if (dst->update.email != NULL) {
+			dst->update.email = xstrdup(dst->update.email);
+		}
+		if (dst->update.name != NULL) {
+			dst->update.name = xstrdup(dst->update.name);
+		}
+		if (dst->update.message != NULL) {
+			dst->update.message = xstrdup(dst->update.message);
+		}
 
-	if (dst->new_hash != NULL) {
-		dst->new_hash = reftable_malloc(hash_size);
-		memcpy(dst->new_hash, src->new_hash, hash_size);
-	}
-	if (dst->old_hash != NULL) {
-		dst->old_hash = reftable_malloc(hash_size);
-		memcpy(dst->old_hash, src->old_hash, hash_size);
+		if (dst->update.new_hash != NULL) {
+			dst->update.new_hash = reftable_malloc(hash_size);
+			memcpy(dst->update.new_hash, src->update.new_hash,
+			       hash_size);
+		}
+		if (dst->update.old_hash != NULL) {
+			dst->update.old_hash = reftable_malloc(hash_size);
+			memcpy(dst->update.old_hash, src->update.old_hash,
+			       hash_size);
+		}
+		break;
 	}
 }
 
@@ -655,11 +672,17 @@ static void reftable_log_record_release_void(void *rec)
 void reftable_log_record_release(struct reftable_log_record *r)
 {
 	reftable_free(r->refname);
-	reftable_free(r->new_hash);
-	reftable_free(r->old_hash);
-	reftable_free(r->name);
-	reftable_free(r->email);
-	reftable_free(r->message);
+	switch (r->value_type) {
+	case REFTABLE_LOG_DELETION:
+		break;
+	case REFTABLE_LOG_UPDATE:
+		reftable_free(r->update.new_hash);
+		reftable_free(r->update.old_hash);
+		reftable_free(r->update.name);
+		reftable_free(r->update.email);
+		reftable_free(r->update.message);
+		break;
+	}
 	memset(r, 0, sizeof(struct reftable_log_record));
 }
 
@@ -679,11 +702,13 @@ static int reftable_log_record_encode(const void *rec, struct string_view s,
 	struct reftable_log_record *r = (struct reftable_log_record *)rec;
 	struct string_view start = s;
 	int n = 0;
-	uint8_t *oldh = r->old_hash;
-	uint8_t *newh = r->new_hash;
+	uint8_t *oldh = NULL;
+	uint8_t *newh = NULL;
 	if (reftable_log_record_is_deletion(r))
 		return 0;
 
+	oldh = r->update.old_hash;
+	newh = r->update.new_hash;
 	if (oldh == NULL) {
 		oldh = zero;
 	}
@@ -698,17 +723,17 @@ static int reftable_log_record_encode(const void *rec, struct string_view s,
 	memcpy(s.buf + hash_size, newh, hash_size);
 	string_view_consume(&s, 2 * hash_size);
 
-	n = encode_string(r->name ? r->name : "", s);
+	n = encode_string(r->update.name ? r->update.name : "", s);
 	if (n < 0)
 		return -1;
 	string_view_consume(&s, n);
 
-	n = encode_string(r->email ? r->email : "", s);
+	n = encode_string(r->update.email ? r->update.email : "", s);
 	if (n < 0)
 		return -1;
 	string_view_consume(&s, n);
 
-	n = put_var_int(&s, r->time);
+	n = put_var_int(&s, r->update.time);
 	if (n < 0)
 		return -1;
 	string_view_consume(&s, n);
@@ -716,10 +741,10 @@ static int reftable_log_record_encode(const void *rec, struct string_view s,
 	if (s.len < 2)
 		return -1;
 
-	put_be16(s.buf, r->tz_offset);
+	put_be16(s.buf, r->update.tz_offset);
 	string_view_consume(&s, 2);
 
-	n = encode_string(r->message ? r->message : "", s);
+	n = encode_string(r->update.message ? r->update.message : "", s);
 	if (n < 0)
 		return -1;
 	string_view_consume(&s, n);
@@ -747,23 +772,32 @@ static int reftable_log_record_decode(void *rec, struct strbuf key,
 
 	r->update_index = (~max) - ts;
 
-	if (val_type == 0) {
-		FREE_AND_NULL(r->old_hash);
-		FREE_AND_NULL(r->new_hash);
-		FREE_AND_NULL(r->message);
-		FREE_AND_NULL(r->email);
-		FREE_AND_NULL(r->name);
-		return 0;
+	if (val_type != r->value_type) {
+		switch (r->value_type) {
+		case REFTABLE_LOG_UPDATE:
+			FREE_AND_NULL(r->update.old_hash);
+			FREE_AND_NULL(r->update.new_hash);
+			FREE_AND_NULL(r->update.message);
+			FREE_AND_NULL(r->update.email);
+			FREE_AND_NULL(r->update.name);
+			break;
+		case REFTABLE_LOG_DELETION:
+			break;
+		}
 	}
+
+	r->value_type = val_type;
+	if (val_type == REFTABLE_LOG_DELETION)
+		return 0;
 
 	if (in.len < 2 * hash_size)
 		return REFTABLE_FORMAT_ERROR;
 
-	r->old_hash = reftable_realloc(r->old_hash, hash_size);
-	r->new_hash = reftable_realloc(r->new_hash, hash_size);
+	r->update.old_hash = reftable_realloc(r->update.old_hash, hash_size);
+	r->update.new_hash = reftable_realloc(r->update.new_hash, hash_size);
 
-	memcpy(r->old_hash, in.buf, hash_size);
-	memcpy(r->new_hash, in.buf + hash_size, hash_size);
+	memcpy(r->update.old_hash, in.buf, hash_size);
+	memcpy(r->update.new_hash, in.buf + hash_size, hash_size);
 
 	string_view_consume(&in, 2 * hash_size);
 
@@ -772,9 +806,9 @@ static int reftable_log_record_decode(void *rec, struct strbuf key,
 		goto done;
 	string_view_consume(&in, n);
 
-	r->name = reftable_realloc(r->name, dest.len + 1);
-	memcpy(r->name, dest.buf, dest.len);
-	r->name[dest.len] = 0;
+	r->update.name = reftable_realloc(r->update.name, dest.len + 1);
+	memcpy(r->update.name, dest.buf, dest.len);
+	r->update.name[dest.len] = 0;
 
 	strbuf_reset(&dest);
 	n = decode_string(&dest, in);
@@ -782,20 +816,20 @@ static int reftable_log_record_decode(void *rec, struct strbuf key,
 		goto done;
 	string_view_consume(&in, n);
 
-	r->email = reftable_realloc(r->email, dest.len + 1);
-	memcpy(r->email, dest.buf, dest.len);
-	r->email[dest.len] = 0;
+	r->update.email = reftable_realloc(r->update.email, dest.len + 1);
+	memcpy(r->update.email, dest.buf, dest.len);
+	r->update.email[dest.len] = 0;
 
 	ts = 0;
 	n = get_var_int(&ts, &in);
 	if (n < 0)
 		goto done;
 	string_view_consume(&in, n);
-	r->time = ts;
+	r->update.time = ts;
 	if (in.len < 2)
 		goto done;
 
-	r->tz_offset = get_be16(in.buf);
+	r->update.tz_offset = get_be16(in.buf);
 	string_view_consume(&in, 2);
 
 	strbuf_reset(&dest);
@@ -804,9 +838,9 @@ static int reftable_log_record_decode(void *rec, struct strbuf key,
 		goto done;
 	string_view_consume(&in, n);
 
-	r->message = reftable_realloc(r->message, dest.len + 1);
-	memcpy(r->message, dest.buf, dest.len);
-	r->message[dest.len] = 0;
+	r->update.message = reftable_realloc(r->update.message, dest.len + 1);
+	memcpy(r->update.message, dest.buf, dest.len);
+	r->update.message[dest.len] = 0;
 
 	strbuf_release(&dest);
 	return start.len - in.len;
@@ -842,12 +876,27 @@ static int zero_hash_eq(uint8_t *a, uint8_t *b, int sz)
 int reftable_log_record_equal(struct reftable_log_record *a,
 			      struct reftable_log_record *b, int hash_size)
 {
-	return null_streq(a->name, b->name) && null_streq(a->email, b->email) &&
-	       null_streq(a->message, b->message) &&
-	       zero_hash_eq(a->old_hash, b->old_hash, hash_size) &&
-	       zero_hash_eq(a->new_hash, b->new_hash, hash_size) &&
-	       a->time == b->time && a->tz_offset == b->tz_offset &&
-	       a->update_index == b->update_index;
+	if (!(null_streq(a->refname, b->refname) &&
+	      a->update_index == b->update_index &&
+	      a->value_type == b->value_type))
+		return 0;
+
+	switch (a->value_type) {
+	case REFTABLE_LOG_DELETION:
+		return 1;
+	case REFTABLE_LOG_UPDATE:
+		return null_streq(a->update.name, b->update.name) &&
+		       a->update.time == b->update.time &&
+		       a->update.tz_offset == b->update.tz_offset &&
+		       null_streq(a->update.email, b->update.email) &&
+		       null_streq(a->update.message, b->update.message) &&
+		       zero_hash_eq(a->update.old_hash, b->update.old_hash,
+				    hash_size) &&
+		       zero_hash_eq(a->update.new_hash, b->update.new_hash,
+				    hash_size);
+	}
+
+	abort();
 }
 
 static int reftable_log_record_is_deletion_void(const void *p)
@@ -1144,10 +1193,7 @@ int reftable_log_record_compare_key(const void *a, const void *b)
 
 int reftable_log_record_is_deletion(const struct reftable_log_record *log)
 {
-	return (log->new_hash == NULL && log->old_hash == NULL &&
-		log->name == NULL && log->email == NULL &&
-		log->message == NULL && log->time == 0 && log->tz_offset == 0 &&
-		log->message == NULL);
+	return (log->value_type == REFTABLE_LOG_DELETION);
 }
 
 void string_view_consume(struct string_view *s, int n)

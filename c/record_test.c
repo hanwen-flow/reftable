@@ -1,9 +1,9 @@
 /*
-Copyright 2020 Google LLC
+  Copyright 2020 Google LLC
 
-Use of this source code is governed by a BSD-style
-license that can be found in the LICENSE file or at
-https://developers.google.com/open-source/licenses/bsd
+  Use of this source code is governed by a BSD-style
+  license that can be found in the LICENSE file or at
+  https://developers.google.com/open-source/licenses/bsd
 */
 
 #include "record.h"
@@ -187,22 +187,26 @@ static void test_reftable_log_record_roundtrip(void)
 	struct reftable_log_record in[2] = {
 		{
 			.refname = xstrdup("refs/heads/master"),
-			.old_hash = reftable_malloc(SHA1_SIZE),
-			.new_hash = reftable_malloc(SHA1_SIZE),
-			.name = xstrdup("han-wen"),
-			.email = xstrdup("hanwen@google.com"),
-			.message = xstrdup("test"),
 			.update_index = 42,
-			.time = 1577123507,
-			.tz_offset = 100,
+			.value_type = REFTABLE_LOG_UPDATE,
+			.update = {
+				.old_hash = reftable_malloc(SHA1_SIZE),
+				.new_hash = reftable_malloc(SHA1_SIZE),
+				.name = xstrdup("han-wen"),
+				.email = xstrdup("hanwen@google.com"),
+				.message = xstrdup("test"),
+				.time = 1577123507,
+				.tz_offset = 100,
+			}
 		},
 		{
 			.refname = xstrdup("refs/heads/master"),
 			.update_index = 22,
+			.value_type = REFTABLE_LOG_DELETION,
 		}
 	};
-	set_test_hash(in[0].new_hash, 1);
-	set_test_hash(in[0].old_hash, 2);
+	set_test_hash(in[0].update.new_hash, 1);
+	set_test_hash(in[0].update.old_hash, 2);
 	for (int i = 0; i < ARRAY_SIZE(in); i++) {
 		struct reftable_record rec = { NULL };
 		struct strbuf key = STRBUF_INIT;
@@ -214,11 +218,14 @@ static void test_reftable_log_record_roundtrip(void)
 		/* populate out, to check for leaks. */
 		struct reftable_log_record out = {
 			.refname = xstrdup("old name"),
-			.new_hash = reftable_calloc(SHA1_SIZE),
-			.old_hash = reftable_calloc(SHA1_SIZE),
-			.name = xstrdup("old name"),
-			.email = xstrdup("old@email"),
-			.message = xstrdup("old message"),
+			.value_type = REFTABLE_LOG_UPDATE,
+			.update = {
+				.new_hash = reftable_calloc(SHA1_SIZE),
+				.old_hash = reftable_calloc(SHA1_SIZE),
+				.name = xstrdup("old name"),
+				.email = xstrdup("old@email"),
+				.message = xstrdup("old message"),
+			},
 		};
 		struct reftable_record rec_out = { NULL };
 		int n, m, valtype;

@@ -74,13 +74,27 @@ struct reftable_log_record {
 	char *refname;
 	uint64_t update_index; /* logical timestamp of a transactional update.
 				*/
-	uint8_t *new_hash;
-	uint8_t *old_hash;
-	char *name;
-	char *email;
-	uint64_t time;
-	int16_t tz_offset;
-	char *message;
+
+	enum {
+		/* tombstone to hide deletions from earlier tables */
+		REFTABLE_LOG_DELETION = 0x0,
+
+		/* a simple update */
+		REFTABLE_LOG_UPDATE = 0x1,
+#define REFTABLE_NR_LOG_VALUETYPES 2
+	} value_type;
+
+	union {
+		struct {
+			uint8_t *new_hash;
+			uint8_t *old_hash;
+			char *name;
+			char *email;
+			uint64_t time;
+			int16_t tz_offset;
+			char *message;
+		} update;
+	};
 };
 
 /* returns whether 'ref' represents the deletion of a log record. */

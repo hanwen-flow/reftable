@@ -88,9 +88,10 @@ static void write_table(char ***names, struct strbuf *buf, int N,
 		snprintf(name, sizeof(name), "refs/heads/branch%02d", i);
 
 		log.refname = name;
-		log.new_hash = hash;
 		log.update_index = update_index;
-		log.message = "message";
+		log.value_type = REFTABLE_LOG_UPDATE;
+		log.update.new_hash = hash;
+		log.update.message = "message";
 
 		n = reftable_writer_add_log(w, &log);
 		EXPECT(n == 0);
@@ -119,15 +120,16 @@ static void test_log_buffer_size(void)
 		.block_size = 4096,
 	};
 	int err;
-	struct reftable_log_record log = {
-		.refname = "refs/heads/master",
-		.name = "Han-Wen Nienhuys",
-		.email = "hanwen@google.com",
-		.tz_offset = 100,
-		.time = 0x5e430672,
-		.update_index = 0xa,
-		.message = "commit: 9\n",
-	};
+	struct reftable_log_record log = { .refname = "refs/heads/master",
+					   .update_index = 0xa,
+					   .value_type = REFTABLE_LOG_UPDATE,
+					   .update = {
+						   .name = "Han-Wen Nienhuys",
+						   .email = "hanwen@google.com",
+						   .tz_offset = 100,
+						   .time = 0x5e430672,
+						   .message = "commit: 9\n",
+					   } };
 	struct reftable_writer *w =
 		reftable_new_writer(&strbuf_add_void, &buf, &opts);
 
@@ -139,8 +141,8 @@ static void test_log_buffer_size(void)
 		hash1[i] = (uint8_t)(rand() % 256);
 		hash2[i] = (uint8_t)(rand() % 256);
 	}
-	log.old_hash = hash1;
-	log.new_hash = hash2;
+	log.update.old_hash = hash1;
+	log.update.new_hash = hash2;
 	reftable_writer_set_limits(w, update_index, update_index);
 	err = reftable_writer_add_log(w, &log);
 	EXPECT_ERR(err);
@@ -189,8 +191,9 @@ static void test_log_write_read(void)
 
 		log.refname = names[i];
 		log.update_index = i;
-		log.old_hash = hash1;
-		log.new_hash = hash2;
+		log.value_type = REFTABLE_LOG_UPDATE;
+		log.update.old_hash = hash1;
+		log.update.new_hash = hash2;
 
 		err = reftable_writer_add_log(w, &log);
 		EXPECT_ERR(err);

@@ -299,16 +299,10 @@ int reftable_writer_add_refs(struct reftable_writer *w,
 	return err;
 }
 
-int reftable_writer_add_log(struct reftable_writer *w,
-			    struct reftable_log_record *log)
+static int reftable_writer_add_log_verbatim(struct reftable_writer *w,
+					    struct reftable_log_record *log)
 {
 	struct reftable_record rec = { NULL };
-	char *input_log_message = log->message;
-	struct strbuf cleaned_message = STRBUF_INIT;
-	int err;
-	if (log->refname == NULL)
-		return REFTABLE_API_ERROR;
-
 	if (w->block_writer != NULL &&
 	    block_writer_type(w->block_writer) == BLOCK_TYPE_REF) {
 		int err = writer_finish_public_section(w);
@@ -316,8 +310,29 @@ int reftable_writer_add_log(struct reftable_writer *w,
 			return err;
 	}
 
-	if (!w->opts.exact_log_message && log->message != NULL) {
-		strbuf_addstr(&cleaned_message, log->message);
+	w->next -= w->pending_padding;
+	w->pending_padding = 0;
+
+	reftable_record_from_log(&rec, log);
+	return writer_add_record(w, &rec);
+}
+
+int reftable_writer_add_log(struct reftable_writer *w,
+			    struct reftable_log_record *log)
+{
+	char *input_log_message = NULL;
+	struct strbuf cleaned_message = STRBUF_INIT;
+	int err = 0;
+
+	if (log->value_type == REFTABLE_LOG_DELETION)
+		return reftable_writer_add_log_verbatim(w, log);
+
+	if (log->refname == NULL)
+		return REFTABLE_API_ERROR;
+
+	input_log_message = log->update.message;
+	if (!w->opts.exact_log_message && log->update.message != NULL) {
+		strbuf_addstr(&cleaned_message, log->update.message);
 		while (cleaned_message.len &&
 		       cleaned_message.buf[cleaned_message.len - 1] == '\n')
 			strbuf_setlen(&cleaned_message,
@@ -328,17 +343,12 @@ int reftable_writer_add_log(struct reftable_writer *w,
 			goto done;
 		}
 		strbuf_addstr(&cleaned_message, "\n");
-		log->message = cleaned_message.buf;
+		log->update.message = cleaned_message.buf;
 	}
 
-	w->next -= w->pending_padding;
-	w->pending_padding = 0;
-
-	reftable_record_from_log(&rec, log);
-	err = writer_add_record(w, &rec);
-
+	err = reftable_writer_add_log_verbatim(w, log);
+	log->update.message = input_log_message;
 done:
-	log->message = input_log_message;
 	strbuf_release(&cleaned_message);
 	return err;
 }

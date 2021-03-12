@@ -834,13 +834,13 @@ static int stack_write_compact(struct reftable_stack *st,
 			continue;
 		}
 
-		if (config != NULL && config->time > 0 &&
-		    log.time < config->time) {
+		if (config != NULL && config->min_update_index > 0 &&
+		    log.update_index < config->min_update_index) {
 			continue;
 		}
 
-		if (config != NULL && config->min_update_index > 0 &&
-		    log.update_index < config->min_update_index) {
+		if (config != NULL && config->time > 0 &&
+		    log.update.time < config->time) {
 			continue;
 		}
 
