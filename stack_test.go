@@ -26,15 +26,13 @@ func testStackN(t *testing.T, N int) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := os.Mkdir(dir+"/reftable", 0755); err != nil {
-		t.Fatal(err)
-	}
+	defer os.RemoveAll(dir)
 
 	cfg := Config{
 		Unaligned: true,
 	}
 
-	st, err := NewStack(dir+"/reftable", cfg)
+	st, err := NewStack(dir, cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -94,6 +92,7 @@ func TestAutoCompaction(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer os.RemoveAll(dir)
 
 	st, err := NewStack(dir, Config{})
 	if err != nil {
@@ -191,16 +190,14 @@ func TestMixedHashSize(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := os.Mkdir(dir+"/reftable", 0755); err != nil {
-		t.Fatal(err)
-	}
+	defer os.RemoveAll(dir)
 
 	cfg := Config{
 		Unaligned: true,
 		HashID:    SHA1ID,
 	}
 
-	st, err := NewStack(dir+"/reftable", cfg)
+	st, err := NewStack(dir, cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -221,7 +218,7 @@ func TestMixedHashSize(t *testing.T) {
 		}
 	}
 	defaultConf := Config{}
-	if defaultSt, err := NewStack(dir+"/reftable", defaultConf); err != nil {
+	if defaultSt, err := NewStack(dir, defaultConf); err != nil {
 		t.Fatalf("NewStack(defaultConf): %v", err)
 	} else {
 		defaultSt.Close()
@@ -229,7 +226,7 @@ func TestMixedHashSize(t *testing.T) {
 
 	cfg2 := cfg
 	cfg2.HashID = SHA256ID
-	if _, err := NewStack(dir+"/reftable", cfg2); err == nil {
+	if _, err := NewStack(dir, cfg2); err == nil {
 		t.Fatal("got success; want an error for hash size mismatch")
 	}
 }
@@ -239,15 +236,13 @@ func TestTombstones(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := os.Mkdir(dir+"/reftable", 0755); err != nil {
-		t.Fatal(err)
-	}
+	defer os.RemoveAll(dir)
 
 	cfg := Config{
 		Unaligned: true,
 	}
 
-	st, err := NewStack(dir+"/reftable", cfg)
+	st, err := NewStack(dir, cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -308,15 +303,13 @@ func TestCompactionReflogExpiry(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := os.Mkdir(dir+"/reftable", 0755); err != nil {
-		t.Fatal(err)
-	}
+	defer os.RemoveAll(dir)
 
 	cfg := Config{
 		Unaligned: true,
 	}
 
-	st, err := NewStack(dir+"/reftable", cfg)
+	st, err := NewStack(dir, cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -397,15 +390,13 @@ func TestIgnoreEmptyTables(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := os.Mkdir(dir+"/reftable", 0755); err != nil {
-		t.Fatal(err)
-	}
+	defer os.RemoveAll(dir)
 
 	cfg := Config{
 		Unaligned: true,
 	}
 
-	st, err := NewStack(dir+"/reftable", cfg)
+	st, err := NewStack(dir, cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -417,7 +408,7 @@ func TestIgnoreEmptyTables(t *testing.T) {
 		t.Fatal("Add", err)
 	}
 
-	entries, err := ioutil.ReadDir(dir + "/reftable")
+	entries, err := ioutil.ReadDir(dir)
 	if err != nil {
 		t.Fatal("ReadDir", err)
 	} else if len(entries) != 0 {
@@ -434,9 +425,7 @@ func TestNameCheck(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := os.Mkdir(dir+"/reftable", 0755); err != nil {
-		t.Fatal(err)
-	}
+	defer os.RemoveAll(dir)
 
 	cfg := Config{
 		Unaligned: true,
@@ -487,10 +476,8 @@ func TestLogLine(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := os.Mkdir(dir+"/reftable", 0755); err != nil {
-		t.Fatal(err)
-	}
 
+	defer os.RemoveAll(dir)
 	cfg := Config{
 		ExactLogMessage: false,
 	}
