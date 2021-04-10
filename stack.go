@@ -108,8 +108,21 @@ func (st *Stack) Merged() *Merged {
 
 // Close releases file descriptors associated with this stack.
 func (st *Stack) Close() {
+	// Read the file list again, for closing files that were opened on windows.
+	names, err := st.readNames()
+	if err != nil {
+		// On error, we won't remove anything.
+		names = nil
+	}
+	nameSet := make(map[string]struct{}, len(names))
+	for _, nm := range names {
+		nameSet[nm] = struct{}{}
+	}
 	for _, r := range st.stack {
 		r.Close()
+		if _, ok := nameSet[r.Name()]; len(nameSet) > 0 && !ok {
+			os.Remove(filepath.Join(st.reftableDir, r.Name()))
+		}
 	}
 	st.stack = nil
 }
@@ -148,10 +161,14 @@ func (st *Stack) reloadOnce(names []string, reuseOpen bool) error {
 
 	// success. Swap.
 	st.stack = newTables
-	for _, v := range cur {
-		v.Close()
-	}
 	newTables = nil
+	for _, old := range cur {
+		old.Close()
+
+		// On windows, we may only be able to close after
+		// closing file handles.
+		os.Remove(filepath.Join(st.reftableDir, old.Name()))
+	}
 	return nil
 }
 
