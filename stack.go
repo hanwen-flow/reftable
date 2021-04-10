@@ -308,7 +308,7 @@ func (st *Stack) NewAddition() (*Addition, error) {
 // the stack.
 func (tr *Addition) Add(write func(w *Writer) error) error {
 	fn := formatName(tr.nextUpdateIndex, tr.nextUpdateIndex)
-	tab, err := ioutil.TempFile(tr.stack.reftableDir, fn+"-tmp-*.ref")
+	tab, err := ioutil.TempFile(tr.stack.reftableDir, fn+"-tmp-*.reftmp")
 	if err != nil {
 		return err
 	}
@@ -451,7 +451,7 @@ func (st *Stack) compactLocked(first, last int, expiration *LogExpirationConfig)
 	fn := formatName(st.stack[first].MinUpdateIndex(),
 		st.stack[last].MaxUpdateIndex())
 
-	tmpTable, err := ioutil.TempFile(st.reftableDir, fn+"_*.ref")
+	tmpTable, err := ioutil.TempFile(st.reftableDir, fn+"_*.reftmp")
 	if err != nil {
 		return "", err
 	}
@@ -803,4 +803,57 @@ func (st *Stack) AutoCompact() error {
 func (st *Stack) CompactAll(expiration *LogExpirationConfig) error {
 	_, err := st.compactRange(0, len(st.stack)-1, expiration)
 	return err
+}
+
+// Clean removes stale *.ref files. It is only required to be called
+// on Windows, if previous processes did not call Stack.Close on exit.
+func (st *Stack) Clean() error {
+	// Take a lock to prevent concurrent updates.
+	add, err := st.NewAddition()
+	if err != nil {
+		return err
+	}
+	defer add.Close()
+
+	if err := st.reload(true); err != nil {
+		return err
+	}
+
+	names := map[string]struct{}{}
+	for _, r := range st.stack {
+		names[r.Name()] = struct{}{}
+	}
+	entries, err := ioutil.ReadDir(st.reftableDir)
+	if err != nil {
+		return err
+	}
+
+	max := st.merged.MaxUpdateIndex()
+	for _, e := range entries {
+		name := e.Name()
+		if _, ok := names[name]; ok {
+			continue
+		}
+		if !strings.HasSuffix(name, ".ref") {
+			continue
+		}
+
+		fn := filepath.Join(st.reftableDir, name)
+		bs, err := NewFileBlockSource(fn)
+		if err != nil {
+			return err
+		}
+
+		rd, err := NewReader(bs, name)
+		if err != nil {
+			return fmt.Errorf("NewReader(%s): %v", name, err)
+		}
+
+		cur := rd.MaxUpdateIndex()
+		rd.Close()
+		if cur <= max {
+			os.Remove(fn)
+		}
+	}
+	return nil
 }

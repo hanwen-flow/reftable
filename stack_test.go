@@ -185,6 +185,76 @@ func TestAutoCompactionConcurrent(t *testing.T) {
 
 }
 
+func TestAutoCompactionConcurrentUncleanShutdown(t *testing.T) {
+	const N = 2
+	dir, err := ioutil.TempDir("", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+	st1, err := NewStack(dir, Config{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for i := 0; i < 3; i++ {
+		if err := st1.Add(func(w *Writer) error {
+			r := RefRecord{
+				RefName:     fmt.Sprintf("branch%04d", i),
+				Target:      "target",
+				UpdateIndex: st1.NextUpdateIndex(),
+			}
+			w.SetLimits(r.UpdateIndex, r.UpdateIndex)
+			if err := w.AddRef(&r); err != nil {
+				return err
+			}
+			return nil
+		}); err != nil {
+			t.Fatalf("write %d: %v", i, err)
+		}
+	}
+
+	st2, err := NewStack(dir, Config{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := st1.CompactAll(nil); err != nil {
+		t.Fatal(err)
+	}
+
+	// break abstraction boundary to simulate unclean shutdown
+	for _, rd := range st1.stack {
+		rd.Close()
+	}
+	for _, rd := range st2.stack {
+		rd.Close()
+	}
+
+	st3, err := NewStack(dir, Config{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := st3.Clean(); err != nil {
+		t.Fatal(err)
+	}
+
+	entries, err := ioutil.ReadDir(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(entries) != 2 {
+		var ss []string
+		for _, e := range entries {
+			ss = append(ss, e.Name())
+		}
+
+		t.Fatalf("got %v want 2 entries (tmp=%s)", ss, dir)
+	}
+
+}
+
 func TestMixedHashSize(t *testing.T) {
 	dir, err := ioutil.TempDir("", "")
 	if err != nil {
