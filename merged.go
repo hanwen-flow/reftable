@@ -133,7 +133,7 @@ func NewMerged(tabs []Table, hashID [4]byte) (*Merged, error) {
 
 // MaxUpdateIndex implements the Table interface.
 func (m *Merged) MaxUpdateIndex() uint64 {
-	return m.stack[len(m.stack)].MaxUpdateIndex()
+	return m.stack[len(m.stack)-1].MaxUpdateIndex()
 }
 
 // MinUpdateIndex implements the Table interface.
