@@ -118,25 +118,57 @@ reftable_stack_merged_table(struct reftable_stack *st)
 	return st->merged;
 }
 
+static int has_name(char **names, const char *name) {
+	while (*names) {
+		if (!strcmp(*names, name))
+			return 1;
+		names++;
+	}
+	return 0;
+}
+
 /* Close and free the stack */
 void reftable_stack_destroy(struct reftable_stack *st)
 {
+	char **names = NULL;
+	int err = 0;
 	if (st->merged != NULL) {
 		reftable_merged_table_free(st->merged);
 		st->merged = NULL;
 	}
 
+	err = read_lines(st->list_file, &names);
+	if (err < 0) {
+		free(names);
+		names = NULL;
+	} 
+
 	if (st->readers != NULL) {
 		int i = 0;
+		struct strbuf filename = STRBUF_INIT;
 		for (i = 0; i < st->readers_len; i++) {
+			const char *name = reader_name(st->readers[i]);
+			strbuf_reset(&filename);
+			if (names && !has_name(names, name)) {
+				strbuf_addstr(&filename, st->reftable_dir);
+				strbuf_addstr(&filename, "/");
+				strbuf_addstr(&filename, name);
+			}
 			reftable_reader_free(st->readers[i]);
+
+			if (filename.len) {
+				// On Windows, can only unlink after closing.
+				unlink(filename.buf);
+			}
 		}
+		strbuf_release(&filename);
 		st->readers_len = 0;
 		FREE_AND_NULL(st->readers);
 	}
 	FREE_AND_NULL(st->list_file);
 	FREE_AND_NULL(st->reftable_dir);
 	reftable_free(st);
+	free_names(names);
 }
 
 static struct reftable_reader **stack_copy_readers(struct reftable_stack *st,
@@ -228,8 +260,19 @@ static int reftable_stack_reload_once(struct reftable_stack *st, char **names,
 	st->merged = new_merged;
 	for (i = 0; i < cur_len; i++) {
 		if (cur[i] != NULL) {
+			const char *name = reader_name(cur[i]);
+			struct strbuf filename = STRBUF_INIT;
+			strbuf_addstr(&filename, st->reftable_dir);
+			strbuf_addstr(&filename, "/");
+			strbuf_addstr(&filename, name);
+			
 			reader_close(cur[i]);
 			reftable_reader_free(cur[i]);
+
+			// On Windows, can only unlink after closing.
+			unlink(filename.buf);
+
+			strbuf_release(&filename);
 		}
 	}
 
