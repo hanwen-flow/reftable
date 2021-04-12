@@ -150,8 +150,7 @@ void reftable_stack_destroy(struct reftable_stack *st)
 
 	err = read_lines(st->list_file, &names);
 	if (err < 0) {
-		free(names);
-		names = NULL;
+		FREE_AND_NULL(names);
 	}
 
 	if (st->readers != NULL) {
