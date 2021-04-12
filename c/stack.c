@@ -29,7 +29,9 @@ static void reftable_addition_close(struct reftable_addition *add);
 static int reftable_stack_reload_maybe_reuse(struct reftable_stack *st,
 					     int reuse_open);
 
-static void stack_filename(struct strbuf *dest, struct reftable_stack *st, const char *name) {
+static void stack_filename(struct strbuf *dest, struct reftable_stack *st,
+			   const char *name)
+{
 	strbuf_reset(dest);
 	strbuf_addstr(dest, st->reftable_dir);
 	strbuf_addstr(dest, "/");
@@ -125,7 +127,8 @@ reftable_stack_merged_table(struct reftable_stack *st)
 	return st->merged;
 }
 
-static int has_name(char **names, const char *name) {
+static int has_name(char **names, const char *name)
+{
 	while (*names) {
 		if (!strcmp(*names, name))
 			return 1;
@@ -148,7 +151,7 @@ void reftable_stack_destroy(struct reftable_stack *st)
 	if (err < 0) {
 		free(names);
 		names = NULL;
-	} 
+	}
 
 	if (st->readers != NULL) {
 		int i = 0;
@@ -266,7 +269,7 @@ static int reftable_stack_reload_once(struct reftable_stack *st, char **names,
 			const char *name = reader_name(cur[i]);
 			struct strbuf filename = STRBUF_INIT;
 			stack_filename(&filename, st, name);
-			
+
 			reader_close(cur[i]);
 			reftable_reader_free(cur[i]);
 
@@ -675,7 +678,7 @@ int reftable_addition_add(struct reftable_addition *add,
 	format_name(&next_name, wr->min_update_index, wr->max_update_index);
 	strbuf_addstr(&next_name, ".ref");
 
-	stack_filename(&tab_file_name,  add->stack, next_name.buf);
+	stack_filename(&tab_file_name, add->stack, next_name.buf);
 
 	/*
 	  On windows, this relies on rand() picking a unique destination name.
@@ -920,7 +923,8 @@ static int stack_compact_range(struct reftable_stack *st, int first, int last,
 		struct strbuf subtab_lock = STRBUF_INIT;
 		int sublock_file_fd = -1;
 
-		stack_filename(&subtab_file_name, st, reader_name(st->readers[i]));
+		stack_filename(&subtab_file_name, st,
+			       reader_name(st->readers[i]));
 
 		strbuf_reset(&subtab_lock);
 		strbuf_addbuf(&subtab_lock, &subtab_file_name);
@@ -1288,12 +1292,14 @@ done:
 	return err;
 }
 
-static int is_table_name(const char *s) {
+static int is_table_name(const char *s)
+{
 	const char *dot = strrchr(s, '.');
 	return dot != NULL && !strcmp(dot, ".ref");
 }
 
-static void remove_maybe_stale_table(struct reftable_stack *st, uint64_t max, const char *name)
+static void remove_maybe_stale_table(struct reftable_stack *st, uint64_t max,
+				     const char *name)
 {
 	int err = 0;
 	uint64_t update_idx = 0;
@@ -1301,16 +1307,15 @@ static void remove_maybe_stale_table(struct reftable_stack *st, uint64_t max, co
 	struct reftable_reader *rd = NULL;
 	struct strbuf table_path = STRBUF_INIT;
 	stack_filename(&table_path, st, name);
-	
-	err = reftable_block_source_from_file(&src,
-					      table_path.buf);
+
+	err = reftable_block_source_from_file(&src, table_path.buf);
 	if (err < 0)
 		goto done;
 
 	err = reftable_new_reader(&rd, &src, name);
 	if (err < 0)
 		goto done;
-	
+
 	update_idx = reftable_reader_max_update_index(rd);
 	reftable_reader_free(rd);
 
@@ -1323,7 +1328,8 @@ done:
 
 static int reftable_stack_clean_locked(struct reftable_stack *st)
 {
-	uint64_t max = reftable_merged_table_max_update_index(reftable_stack_merged_table(st));
+	uint64_t max = reftable_merged_table_max_update_index(
+		reftable_stack_merged_table(st));
 	DIR *dir = opendir(st->reftable_dir);
 	struct dirent *d = NULL;
 	if (dir == NULL) {
@@ -1335,11 +1341,12 @@ static int reftable_stack_clean_locked(struct reftable_stack *st)
 		int found = 0;
 		if (!is_table_name(d->d_name))
 			continue;
-		
+
 		for (i = 0; !found && i < st->readers_len; i++) {
 			found = !strcmp(reader_name(st->readers[i]), d->d_name);
 		}
-		if (found) continue;
+		if (found)
+			continue;
 
 		remove_maybe_stale_table(st, max, d->d_name);
 	}

@@ -29,15 +29,16 @@ static void clear_dir(const char *dirname)
 	strbuf_release(&path);
 }
 
-static int count_dir_entries(const char *dirname) {
+static int count_dir_entries(const char *dirname)
+{
 	DIR *dir = opendir(dirname);
 	int len = 0;
 	struct dirent *d;
 	if (dir == NULL)
 		return 0;
-	
+
 	while ((d = readdir(dir)) != NULL) {
-		if (!strcmp(d->d_name,"..") ||  ! strcmp(d->d_name, "."))
+		if (!strcmp(d->d_name, "..") || !strcmp(d->d_name, "."))
 			continue;
 		len++;
 	}
@@ -823,13 +824,13 @@ static void test_reftable_stack_compaction_concurrent(void)
 		err = reftable_stack_add(st1, &write_test_ref, &ref);
 		EXPECT_ERR(err);
 	}
- 
+
 	err = reftable_new_stack(&st2, dir, cfg);
 	EXPECT_ERR(err);
 
 	err = reftable_stack_compact_all(st1, NULL);
 	EXPECT_ERR(err);
-	
+
 	reftable_stack_destroy(st1);
 	reftable_stack_destroy(st2);
 
@@ -873,7 +874,7 @@ static void test_reftable_stack_compaction_concurrent_clean(void)
 		err = reftable_stack_add(st1, &write_test_ref, &ref);
 		EXPECT_ERR(err);
 	}
- 
+
 	err = reftable_new_stack(&st2, dir, cfg);
 	EXPECT_ERR(err);
 
@@ -893,7 +894,7 @@ static void test_reftable_stack_compaction_concurrent_clean(void)
 	reftable_stack_destroy(st1);
 	reftable_stack_destroy(st2);
 	reftable_stack_destroy(st3);
-	
+
 	clear_dir(dir);
 }
 
@@ -925,4 +926,3 @@ int stack_test_main(int argc, const char *argv[])
 	RUN_TEST(test_reftable_stack_add);
 	return 0;
 }
-

@@ -116,4 +116,3 @@ int strbuf_add(struct strbuf *b, const void *data, size_t sz)
 	b->buf[b->len] = 0;
 	return sz;
 }
-
