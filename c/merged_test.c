@@ -13,7 +13,6 @@ https://developers.google.com/open-source/licenses/bsd
 #include "basics.h"
 #include "blocksource.h"
 #include "constants.h"
-#include "pq.h"
 #include "reader.h"
 #include "record.h"
 #include "test_framework.h"
@@ -21,56 +20,6 @@ https://developers.google.com/open-source/licenses/bsd
 #include "reftable-tests.h"
 #include "reftable-generic.h"
 #include "reftable-stack.h"
-
-static void test_pq(void)
-{
-	char *names[54] = { NULL };
-	int N = ARRAY_SIZE(names) - 1;
-
-	struct merged_iter_pqueue pq = { NULL };
-	const char *last = NULL;
-
-	int i = 0;
-	for (i = 0; i < N; i++) {
-		char name[100];
-		snprintf(name, sizeof(name), "%02d", i);
-		names[i] = xstrdup(name);
-	}
-
-	i = 1;
-	do {
-		struct reftable_record rec =
-			reftable_new_record(BLOCK_TYPE_REF);
-		struct pq_entry e = { 0 };
-
-		reftable_record_as_ref(&rec)->refname = names[i];
-		e.rec = rec;
-		merged_iter_pqueue_add(&pq, e);
-		merged_iter_pqueue_check(pq);
-		i = (i * 7) % N;
-	} while (i != 1);
-
-	while (!merged_iter_pqueue_is_empty(pq)) {
-		struct pq_entry e = merged_iter_pqueue_remove(&pq);
-		struct reftable_ref_record *ref =
-			reftable_record_as_ref(&e.rec);
-
-		merged_iter_pqueue_check(pq);
-
-		if (last != NULL) {
-			assert(strcmp(last, ref->refname) < 0);
-		}
-		last = ref->refname;
-		ref->refname = NULL;
-		reftable_free(ref);
-	}
-
-	for (i = 0; i < N; i++) {
-		reftable_free(names[i]);
-	}
-
-	merged_iter_pqueue_release(&pq);
-}
 
 static void write_test_table(struct strbuf *buf,
 			     struct reftable_ref_record refs[], int n)
@@ -336,7 +285,6 @@ static void test_default_write_opts(void)
 int merged_test_main(int argc, const char *argv[])
 {
 	RUN_TEST(test_merged_between);
-	RUN_TEST(test_pq);
 	RUN_TEST(test_merged);
 	RUN_TEST(test_default_write_opts);
 	return 0;

@@ -200,6 +200,19 @@ cc_test(
 )
 
 cc_test(
+    name = "pq_test",
+    srcs = ["pq_test.c"],
+    deps = [
+        ":reftable",
+        ":testlib",
+    ],
+    copts = [
+        "-Dpq_test_main=main",
+        "-fvisibility=protected",
+    ] + GIT_COPTS,
+)
+
+cc_test(
     name = "merged_test",
     srcs = ["merged_test.c"],
     deps = [
