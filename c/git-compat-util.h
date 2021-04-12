@@ -10,6 +10,7 @@ https://developers.google.com/open-source/licenses/bsd
 #define GIT_COMPAT_UTIL_H
 
 #include <assert.h>
+#include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
