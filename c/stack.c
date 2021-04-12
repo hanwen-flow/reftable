@@ -29,6 +29,13 @@ static void reftable_addition_close(struct reftable_addition *add);
 static int reftable_stack_reload_maybe_reuse(struct reftable_stack *st,
 					     int reuse_open);
 
+static void stack_filename(struct strbuf *dest, struct reftable_stack *st, const char *name) {
+	strbuf_reset(dest);
+	strbuf_addstr(dest, st->reftable_dir);
+	strbuf_addstr(dest, "/");
+	strbuf_addstr(dest, name);
+}
+
 static int reftable_fd_write(void *arg, const void *data, size_t sz)
 {
 	int *fdp = (int *)arg;
@@ -150,9 +157,7 @@ void reftable_stack_destroy(struct reftable_stack *st)
 			const char *name = reader_name(st->readers[i]);
 			strbuf_reset(&filename);
 			if (names && !has_name(names, name)) {
-				strbuf_addstr(&filename, st->reftable_dir);
-				strbuf_addstr(&filename, "/");
-				strbuf_addstr(&filename, name);
+				stack_filename(&filename, st, name);
 			}
 			reftable_reader_free(st->readers[i]);
 
@@ -216,9 +221,7 @@ static int reftable_stack_reload_once(struct reftable_stack *st, char **names,
 		if (rd == NULL) {
 			struct reftable_block_source src = { NULL };
 			struct strbuf table_path = STRBUF_INIT;
-			strbuf_addstr(&table_path, st->reftable_dir);
-			strbuf_addstr(&table_path, "/");
-			strbuf_addstr(&table_path, name);
+			stack_filename(&table_path, st, name);
 
 			err = reftable_block_source_from_file(&src,
 							      table_path.buf);
@@ -262,9 +265,7 @@ static int reftable_stack_reload_once(struct reftable_stack *st, char **names,
 		if (cur[i] != NULL) {
 			const char *name = reader_name(cur[i]);
 			struct strbuf filename = STRBUF_INIT;
-			strbuf_addstr(&filename, st->reftable_dir);
-			strbuf_addstr(&filename, "/");
-			strbuf_addstr(&filename, name);
+			stack_filename(&filename, st, name);
 			
 			reader_close(cur[i]);
 			reftable_reader_free(cur[i]);
@@ -496,10 +497,7 @@ static void reftable_addition_close(struct reftable_addition *add)
 	int i = 0;
 	struct strbuf nm = STRBUF_INIT;
 	for (i = 0; i < add->new_tables_len; i++) {
-		strbuf_reset(&nm);
-		strbuf_addstr(&nm, add->stack->reftable_dir);
-		strbuf_addstr(&nm, "/");
-		strbuf_addstr(&nm, add->new_tables[i]);
+		stack_filename(&nm, add->stack, add->new_tables[i]);
 		unlink(nm.buf);
 		reftable_free(add->new_tables[i]);
 		add->new_tables[i] = NULL;
@@ -635,9 +633,7 @@ int reftable_addition_add(struct reftable_addition *add,
 	strbuf_reset(&next_name);
 	format_name(&next_name, add->next_update_index, add->next_update_index);
 
-	strbuf_addstr(&temp_tab_file_name, add->stack->reftable_dir);
-	strbuf_addstr(&temp_tab_file_name, "/");
-	strbuf_addbuf(&temp_tab_file_name, &next_name);
+	stack_filename(&temp_tab_file_name, add->stack, next_name.buf);
 	strbuf_addstr(&temp_tab_file_name, ".temp.XXXXXX");
 
 	tab_fd = mkstemp(temp_tab_file_name.buf);
@@ -679,9 +675,7 @@ int reftable_addition_add(struct reftable_addition *add,
 	format_name(&next_name, wr->min_update_index, wr->max_update_index);
 	strbuf_addstr(&next_name, ".ref");
 
-	strbuf_addstr(&tab_file_name, add->stack->reftable_dir);
-	strbuf_addstr(&tab_file_name, "/");
-	strbuf_addbuf(&tab_file_name, &next_name);
+	stack_filename(&tab_file_name,  add->stack, next_name.buf);
 
 	/*
 	  On windows, this relies on rand() picking a unique destination name.
@@ -736,10 +730,7 @@ static int stack_compact_locked(struct reftable_stack *st, int first, int last,
 		    reftable_reader_min_update_index(st->readers[first]),
 		    reftable_reader_max_update_index(st->readers[last]));
 
-	strbuf_reset(temp_tab);
-	strbuf_addstr(temp_tab, st->reftable_dir);
-	strbuf_addstr(temp_tab, "/");
-	strbuf_addbuf(temp_tab, &next_name);
+	stack_filename(temp_tab, st, next_name.buf);
 	strbuf_addstr(temp_tab, ".temp.XXXXXX");
 
 	tab_fd = mkstemp(temp_tab->buf);
@@ -929,9 +920,7 @@ static int stack_compact_range(struct reftable_stack *st, int first, int last,
 		struct strbuf subtab_lock = STRBUF_INIT;
 		int sublock_file_fd = -1;
 
-		strbuf_addstr(&subtab_file_name, st->reftable_dir);
-		strbuf_addstr(&subtab_file_name, "/");
-		strbuf_addstr(&subtab_file_name, reader_name(st->readers[i]));
+		stack_filename(&subtab_file_name, st, reader_name(st->readers[i]));
 
 		strbuf_reset(&subtab_lock);
 		strbuf_addbuf(&subtab_lock, &subtab_file_name);
@@ -989,10 +978,7 @@ static int stack_compact_range(struct reftable_stack *st, int first, int last,
 		    st->readers[last]->max_update_index);
 	strbuf_addstr(&new_table_name, ".ref");
 
-	strbuf_reset(&new_table_path);
-	strbuf_addstr(&new_table_path, st->reftable_dir);
-	strbuf_addstr(&new_table_path, "/");
-	strbuf_addbuf(&new_table_path, &new_table_name);
+	stack_filename(&new_table_path, st, new_table_name.buf);
 
 	if (!is_empty_table) {
 		/* retry? */
@@ -1314,9 +1300,7 @@ static void remove_maybe_stale_table(struct reftable_stack *st, uint64_t max, co
 	struct reftable_block_source src = { NULL };
 	struct reftable_reader *rd = NULL;
 	struct strbuf table_path = STRBUF_INIT;
-	strbuf_addstr(&table_path, st->reftable_dir);
-	strbuf_addstr(&table_path, "/");
-	strbuf_addstr(&table_path, name);
+	stack_filename(&table_path, st, name);
 	
 	err = reftable_block_source_from_file(&src,
 					      table_path.buf);
