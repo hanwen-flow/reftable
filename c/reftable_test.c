@@ -16,7 +16,7 @@ https://developers.google.com/open-source/licenses/bsd
 #include "record.h"
 #include "test_framework.h"
 #include "reftable-tests.h"
-#include "reftable-stack.h"
+#include "reftable-writer.h"
 
 static const int update_index = 5;
 

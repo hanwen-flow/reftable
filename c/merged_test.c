@@ -19,7 +19,7 @@ https://developers.google.com/open-source/licenses/bsd
 #include "reftable-merged.h"
 #include "reftable-tests.h"
 #include "reftable-generic.h"
-#include "reftable-stack.h"
+#include "reftable-writer.h"
 
 static void write_test_table(struct strbuf *buf,
 			     struct reftable_ref_record refs[], int n)
