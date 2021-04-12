@@ -45,6 +45,7 @@ cc_library(
         "basics.h",
         "block.h",
         "blocksource.h",
+        "generic.h",
         "git-compat-util.h",
         "constants.h",
         "iter.h",

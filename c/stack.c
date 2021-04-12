@@ -14,6 +14,7 @@ https://developers.google.com/open-source/licenses/bsd
 #include "refname.h"
 #include "reftable-error.h"
 #include "reftable-record.h"
+#include "reftable-merged.h"
 #include "writer.h"
 
 static int stack_try_add(struct reftable_stack *st,

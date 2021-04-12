@@ -13,6 +13,7 @@ https://developers.google.com/open-source/licenses/bsd
 #include "pq.h"
 #include "reader.h"
 #include "record.h"
+#include "generic.h"
 #include "reftable-merged.h"
 #include "reftable-error.h"
 #include "system.h"

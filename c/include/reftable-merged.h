@@ -65,4 +65,8 @@ void reftable_merged_table_free(struct reftable_merged_table *m);
 /* return the hash ID of the merged table. */
 uint32_t reftable_merged_table_hash_id(struct reftable_merged_table *m);
 
+/* create a generic table from reftable_merged_table */
+void reftable_table_from_merged_table(struct reftable_table *tab,
+				      struct reftable_merged_table *table);
+
 #endif

@@ -10,8 +10,8 @@ https://developers.google.com/open-source/licenses/bsd
 #define REFTABLE_GENERIC_H
 
 #include "reftable-iterator.h"
-#include "reftable-reader.h"
-#include "reftable-merged.h"
+
+struct reftable_table_vtable;
 
 /*
  * Provides a unified API for reading tables, either merged tables, or single
@@ -24,15 +24,8 @@ struct reftable_table {
 int reftable_table_seek_ref(struct reftable_table *tab,
 			    struct reftable_iterator *it, const char *name);
 
-void reftable_table_from_reader(struct reftable_table *tab,
-				struct reftable_reader *reader);
-
 /* returns the hash ID from a generic reftable_table */
 uint32_t reftable_table_hash_id(struct reftable_table *tab);
-
-/* create a generic table from reftable_merged_table */
-void reftable_table_from_merged_table(struct reftable_table *tab,
-				      struct reftable_merged_table *table);
 
 /* returns the max update_index covered by this table. */
 uint64_t reftable_table_max_update_index(struct reftable_table *tab);

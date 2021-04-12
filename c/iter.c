@@ -11,6 +11,7 @@ https://developers.google.com/open-source/licenses/bsd
 #include "system.h"
 
 #include "block.h"
+#include "generic.h"
 #include "constants.h"
 #include "reader.h"
 #include "reftable-error.h"
@@ -18,58 +19,6 @@ https://developers.google.com/open-source/licenses/bsd
 int iterator_is_null(struct reftable_iterator *it)
 {
 	return it->ops == NULL;
-}
-
-static int empty_iterator_next(void *arg, struct reftable_record *rec)
-{
-	return 1;
-}
-
-static void empty_iterator_close(void *arg)
-{
-}
-
-static struct reftable_iterator_vtable empty_vtable = {
-	.next = &empty_iterator_next,
-	.close = &empty_iterator_close,
-};
-
-void iterator_set_empty(struct reftable_iterator *it)
-{
-	assert(it->ops == NULL);
-	it->iter_arg = NULL;
-	it->ops = &empty_vtable;
-}
-
-int iterator_next(struct reftable_iterator *it, struct reftable_record *rec)
-{
-	return it->ops->next(it->iter_arg, rec);
-}
-
-void reftable_iterator_destroy(struct reftable_iterator *it)
-{
-	if (it->ops == NULL) {
-		return;
-	}
-	it->ops->close(it->iter_arg);
-	it->ops = NULL;
-	FREE_AND_NULL(it->iter_arg);
-}
-
-int reftable_iterator_next_ref(struct reftable_iterator *it,
-			       struct reftable_ref_record *ref)
-{
-	struct reftable_record rec = { NULL };
-	reftable_record_from_ref(&rec, ref);
-	return iterator_next(it, &rec);
-}
-
-int reftable_iterator_next_log(struct reftable_iterator *it,
-			       struct reftable_log_record *log)
-{
-	struct reftable_record rec = { NULL };
-	reftable_record_from_log(&rec, log);
-	return iterator_next(it, &rec);
 }
 
 static void filtering_ref_iterator_close(void *iter_arg)

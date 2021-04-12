@@ -11,6 +11,8 @@ https://developers.google.com/open-source/licenses/bsd
 
 #include "reftable-record.h"
 
+struct reftable_iterator_vtable;
+
 /* iterator is the generic interface for walking over data stored in a
  * reftable.
  */

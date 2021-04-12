@@ -11,9 +11,11 @@ https://developers.google.com/open-source/licenses/bsd
 #include "system.h"
 #include "block.h"
 #include "constants.h"
+#include "generic.h"
 #include "iter.h"
 #include "record.h"
 #include "reftable-error.h"
+#include "reftable-generic.h"
 #include "tree.h"
 
 uint64_t block_source_size(struct reftable_block_source *source)
@@ -730,4 +732,42 @@ uint64_t reftable_reader_max_update_index(struct reftable_reader *r)
 uint64_t reftable_reader_min_update_index(struct reftable_reader *r)
 {
 	return r->min_update_index;
+}
+
+/* generic table interface. */
+
+static int reftable_reader_seek_void(void *tab, struct reftable_iterator *it,
+				     struct reftable_record *rec)
+{
+	return reader_seek((struct reftable_reader *)tab, it, rec);
+}
+
+static uint32_t reftable_reader_hash_id_void(void *tab)
+{
+	return reftable_reader_hash_id((struct reftable_reader *)tab);
+}
+
+static uint64_t reftable_reader_min_update_index_void(void *tab)
+{
+	return reftable_reader_min_update_index((struct reftable_reader *)tab);
+}
+
+static uint64_t reftable_reader_max_update_index_void(void *tab)
+{
+	return reftable_reader_max_update_index((struct reftable_reader *)tab);
+}
+
+static struct reftable_table_vtable reader_vtable = {
+	.seek_record = reftable_reader_seek_void,
+	.hash_id = reftable_reader_hash_id_void,
+	.min_update_index = reftable_reader_min_update_index_void,
+	.max_update_index = reftable_reader_max_update_index_void,
+};
+
+void reftable_table_from_reader(struct reftable_table *tab,
+				struct reftable_reader *reader)
+{
+	assert(tab->ops == NULL);
+	tab->ops = &reader_vtable;
+	tab->table_arg = reader;
 }

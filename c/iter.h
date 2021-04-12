@@ -16,14 +16,6 @@ https://developers.google.com/open-source/licenses/bsd
 #include "reftable-iterator.h"
 #include "reftable-generic.h"
 
-struct reftable_iterator_vtable {
-	int (*next)(void *iter_arg, struct reftable_record *rec);
-	void (*close)(void *iter_arg);
-};
-
-void iterator_set_empty(struct reftable_iterator *it);
-int iterator_next(struct reftable_iterator *it, struct reftable_record *rec);
-
 /* Returns true for a zeroed out iterator, such as the one returned from
  * iterator_destroy. */
 int iterator_is_null(struct reftable_iterator *it);

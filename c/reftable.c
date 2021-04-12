@@ -6,38 +6,11 @@ license that can be found in the LICENSE file or at
 https://developers.google.com/open-source/licenses/bsd
 */
 
+#include "basics.h"
 #include "record.h"
-#include "reader.h"
+#include "generic.h"
 #include "reftable-iterator.h"
 #include "reftable-generic.h"
-
-static int reftable_reader_seek_void(void *tab, struct reftable_iterator *it,
-				     struct reftable_record *rec)
-{
-	return reader_seek((struct reftable_reader *)tab, it, rec);
-}
-
-static uint32_t reftable_reader_hash_id_void(void *tab)
-{
-	return reftable_reader_hash_id((struct reftable_reader *)tab);
-}
-
-static uint64_t reftable_reader_min_update_index_void(void *tab)
-{
-	return reftable_reader_min_update_index((struct reftable_reader *)tab);
-}
-
-static uint64_t reftable_reader_max_update_index_void(void *tab)
-{
-	return reftable_reader_max_update_index((struct reftable_reader *)tab);
-}
-
-static struct reftable_table_vtable reader_vtable = {
-	.seek_record = reftable_reader_seek_void,
-	.hash_id = reftable_reader_hash_id_void,
-	.min_update_index = reftable_reader_min_update_index_void,
-	.max_update_index = reftable_reader_max_update_index_void,
-};
 
 int reftable_table_seek_ref(struct reftable_table *tab,
 			    struct reftable_iterator *it, const char *name)
@@ -48,14 +21,6 @@ int reftable_table_seek_ref(struct reftable_table *tab,
 	struct reftable_record rec = { NULL };
 	reftable_record_from_ref(&rec, &ref);
 	return tab->ops->seek_record(tab->table_arg, it, &rec);
-}
-
-void reftable_table_from_reader(struct reftable_table *tab,
-				struct reftable_reader *reader)
-{
-	assert(tab->ops == NULL);
-	tab->ops = &reader_vtable;
-	tab->table_arg = reader;
 }
 
 int reftable_table_read_ref(struct reftable_table *tab, const char *name,
@@ -95,4 +60,56 @@ uint64_t reftable_table_min_update_index(struct reftable_table *tab)
 uint32_t reftable_table_hash_id(struct reftable_table *tab)
 {
 	return tab->ops->hash_id(tab->table_arg);
+}
+
+void reftable_iterator_destroy(struct reftable_iterator *it)
+{
+	if (it->ops == NULL) {
+		return;
+	}
+	it->ops->close(it->iter_arg);
+	it->ops = NULL;
+	FREE_AND_NULL(it->iter_arg);
+}
+
+int reftable_iterator_next_ref(struct reftable_iterator *it,
+			       struct reftable_ref_record *ref)
+{
+	struct reftable_record rec = { NULL };
+	reftable_record_from_ref(&rec, ref);
+	return iterator_next(it, &rec);
+}
+
+int reftable_iterator_next_log(struct reftable_iterator *it,
+			       struct reftable_log_record *log)
+{
+	struct reftable_record rec = { NULL };
+	reftable_record_from_log(&rec, log);
+	return iterator_next(it, &rec);
+}
+
+int iterator_next(struct reftable_iterator *it, struct reftable_record *rec)
+{
+	return it->ops->next(it->iter_arg, rec);
+}
+
+static int empty_iterator_next(void *arg, struct reftable_record *rec)
+{
+	return 1;
+}
+
+static void empty_iterator_close(void *arg)
+{
+}
+
+static struct reftable_iterator_vtable empty_vtable = {
+	.next = &empty_iterator_next,
+	.close = &empty_iterator_close,
+};
+
+void iterator_set_empty(struct reftable_iterator *it)
+{
+	assert(it->ops == NULL);
+	it->iter_arg = NULL;
+	it->ops = &empty_vtable;
 }
