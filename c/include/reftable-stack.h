@@ -94,6 +94,9 @@ int reftable_stack_compact_all(struct reftable_stack *st,
 /* heuristically compact unbalanced table stack. */
 int reftable_stack_auto_compact(struct reftable_stack *st);
 
+/* delete stale .ref tables. */
+int reftable_stack_clean(struct reftable_stack *st);
+
 /* convenience function to read a single ref. Returns < 0 for error, 0 for
  * success, and 1 if ref not found. */
 int reftable_stack_read_ref(struct reftable_stack *st, const char *refname,

@@ -1301,3 +1301,85 @@ done:
 	reftable_reader_free(rd);
 	return err;
 }
+
+static int is_table_name(const char *s) {
+	const char *dot = strrchr(s, '.');
+	return dot != NULL && !strcmp(dot, ".ref");
+}
+
+static void remove_maybe_stale_table(struct reftable_stack *st, uint64_t max, const char *name)
+{
+	int err = 0;
+	uint64_t update_idx = 0;
+	struct reftable_block_source src = { NULL };
+	struct reftable_reader *rd = NULL;
+	struct strbuf table_path = STRBUF_INIT;
+	strbuf_addstr(&table_path, st->reftable_dir);
+	strbuf_addstr(&table_path, "/");
+	strbuf_addstr(&table_path, name);
+	
+	err = reftable_block_source_from_file(&src,
+					      table_path.buf);
+	if (err < 0)
+		goto done;
+
+	err = reftable_new_reader(&rd, &src, name);
+	if (err < 0)
+		goto done;
+	
+	update_idx = reftable_reader_max_update_index(rd);
+	reftable_reader_free(rd);
+
+	if (update_idx <= max) {
+		unlink(table_path.buf);
+	}
+done:
+	strbuf_release(&table_path);
+}
+
+static int reftable_stack_clean_locked(struct reftable_stack *st)
+{
+	uint64_t max = reftable_merged_table_max_update_index(reftable_stack_merged_table(st));
+	DIR *dir = opendir(st->reftable_dir);
+	struct dirent *d = NULL;
+	if (dir == NULL) {
+		return REFTABLE_IO_ERROR;
+	}
+
+	while ((d = readdir(dir)) != NULL) {
+		int i = 0;
+		int found = 0;
+		if (!is_table_name(d->d_name))
+			continue;
+		
+		for (i = 0; !found && i < st->readers_len; i++) {
+			found = !strcmp(reader_name(st->readers[i]), d->d_name);
+		}
+		if (found) continue;
+
+		remove_maybe_stale_table(st, max, d->d_name);
+	}
+
+	closedir(dir);
+	return 0;
+}
+
+int reftable_stack_clean(struct reftable_stack *st)
+{
+	struct reftable_addition *add = NULL;
+	int err = reftable_stack_new_addition(&add, st);
+	if (err < 0) {
+		goto done;
+	}
+
+	err = reftable_stack_reload(st);
+	if (err < 0) {
+		goto done;
+	}
+
+	err = reftable_stack_clean_locked(st);
+
+done:
+	reftable_addition_destroy(add);
+	return err;
+}

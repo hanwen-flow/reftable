@@ -831,8 +831,69 @@ static void test_reftable_stack_compaction_concurrent(void)
 	clear_dir(dir);
 }
 
+static void unclean_stack_close(struct reftable_stack *st)
+{
+	// break abstraction boundary to simulate unclean shutdown.
+	int i = 0;
+	for (; i < st->readers_len; i++) {
+		reftable_reader_free(st->readers[i]);
+	}
+	st->readers_len = 0;
+	FREE_AND_NULL(st->readers);
+}
+
+static void test_reftable_stack_compaction_concurrent_clean(void)
+{
+	struct reftable_write_options cfg = { 0 };
+	struct reftable_stack *st1 = NULL, *st2 = NULL, *st3 = NULL;
+	char *dir = get_tmp_template(__FUNCTION__);
+	int err, i;
+	int N = 3;
+	EXPECT(mkdtemp(dir));
+
+	err = reftable_new_stack(&st1, dir, cfg);
+	EXPECT_ERR(err);
+
+	for (i = 0; i < N; i++) {
+		char name[100];
+		struct reftable_ref_record ref = {
+			.refname = name,
+			.update_index = reftable_stack_next_update_index(st1),
+			.value_type = REFTABLE_REF_SYMREF,
+			.value.symref = "master",
+		};
+		snprintf(name, sizeof(name), "branch%04d", i);
+
+		err = reftable_stack_add(st1, &write_test_ref, &ref);
+		EXPECT_ERR(err);
+	}
+ 
+	err = reftable_new_stack(&st2, dir, cfg);
+	EXPECT_ERR(err);
+
+	err = reftable_stack_compact_all(st1, NULL);
+	EXPECT_ERR(err);
+
+	unclean_stack_close(st1);
+	unclean_stack_close(st2);
+
+	err = reftable_new_stack(&st3, dir, cfg);
+	EXPECT_ERR(err);
+
+	err = reftable_stack_clean(st3);
+	EXPECT_ERR(err);
+	EXPECT(count_dir_entries(dir) == 2);
+
+	reftable_stack_destroy(st1);
+	reftable_stack_destroy(st2);
+	reftable_stack_destroy(st3);
+	
+	clear_dir(dir);
+}
+
 int stack_test_main(int argc, const char *argv[])
 {
+	RUN_TEST(test_reftable_stack_compaction_concurrent_clean);
 	RUN_TEST(test_reftable_stack_compaction_concurrent);
 	RUN_TEST(test_reftable_stack_uptodate);
 	RUN_TEST(test_reftable_stack_transaction_api);
