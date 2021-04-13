@@ -83,7 +83,7 @@ struct reftable_stats {
 
 /* reftable_new_writer creates a new writer */
 struct reftable_writer *
-reftable_new_writer(int (*writer_func)(void *, const void *, size_t),
+reftable_new_writer(ssize_t (*writer_func)(void *, const void *, size_t),
 		    void *writer_arg, struct reftable_write_options *opts);
 
 /* Set the range of update indices for the records we will add. When writing a

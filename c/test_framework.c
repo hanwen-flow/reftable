@@ -16,7 +16,7 @@ void set_test_hash(uint8_t *p, int i)
 	memset(p, (uint8_t)i, hash_size(SHA1_ID));
 }
 
-int strbuf_add_void(void *b, const void *data, size_t sz)
+ssize_t strbuf_add_void(void *b, const void *data, size_t sz)
 {
 	strbuf_add((struct strbuf *)b, data, sz);
 	return sz;

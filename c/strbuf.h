@@ -55,7 +55,7 @@ void strbuf_grow(struct strbuf *s, size_t l);
 int strbuf_cmp(const struct strbuf *a, const struct strbuf *b);
 
 /* Append `data` to the `dest` strbuf.  */
-int strbuf_add(struct strbuf *dest, const void *data, size_t sz);
+ssize_t strbuf_add(struct strbuf *dest, const void *data, size_t sz);
 
 /* Append `add` to `dest. */
 void strbuf_addbuf(struct strbuf *dest, struct strbuf *add);

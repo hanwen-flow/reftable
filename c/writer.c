@@ -118,7 +118,7 @@ static void writer_reinit_block_writer(struct reftable_writer *w, uint8_t typ)
 static struct strbuf reftable_empty_strbuf = STRBUF_INIT;
 
 struct reftable_writer *
-reftable_new_writer(int (*writer_func)(void *, const void *, size_t),
+reftable_new_writer(ssize_t (*writer_func)(void *, const void *, size_t),
 		    void *writer_arg, struct reftable_write_options *opts)
 {
 	struct reftable_writer *wp =

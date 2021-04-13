@@ -15,7 +15,7 @@ https://developers.google.com/open-source/licenses/bsd
 #include "reftable-writer.h"
 
 struct reftable_writer {
-	int (*write)(void *, const void *, size_t);
+	ssize_t (*write)(void *, const void *, size_t);
 	void *write_arg;
 	int pending_padding;
 	struct strbuf last_key;

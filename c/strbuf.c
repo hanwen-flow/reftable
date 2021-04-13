@@ -107,7 +107,7 @@ int strbuf_cmp(const struct strbuf *a, const struct strbuf *b)
 		return 0;
 }
 
-int strbuf_add(struct strbuf *b, const void *data, size_t sz)
+ssize_t strbuf_add(struct strbuf *b, const void *data, size_t sz)
 {
 	assert(b->canary == STRBUF_CANARY);
 	strbuf_grow(b, sz);

@@ -48,6 +48,6 @@ void set_test_hash(uint8_t *p, int i);
 
 /* Like strbuf_add, but suitable for passing to reftable_new_writer
  */
-int strbuf_add_void(void *b, const void *data, size_t sz);
+ssize_t strbuf_add_void(void *b, const void *data, size_t sz);
 
 #endif

@@ -39,7 +39,7 @@ static void stack_filename(struct strbuf *dest, struct reftable_stack *st,
 	strbuf_addstr(dest, name);
 }
 
-static int reftable_fd_write(void *arg, const void *data, size_t sz)
+static ssize_t reftable_fd_write(void *arg, const void *data, size_t sz)
 {
 	int *fdp = (int *)arg;
 	return write(*fdp, data, sz);
