@@ -41,7 +41,6 @@ cc_library(
         "stack.c",
         "tree.c",
         "writer.c",
-        "zlib-compat.c",
         "basics.h",
         "block.h",
         "blocksource.h",

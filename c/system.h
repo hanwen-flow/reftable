@@ -23,10 +23,6 @@ int remove_dir_recursively(struct strbuf *path, int flags);
 #define SHA1_SIZE 20
 #define SHA256_SIZE 32
 
-/* This is uncompress2, which is only available in zlib as of 2017.
- */
-int uncompress_return_consumed(Bytef *dest, uLongf *destLen,
-			       const Bytef *source, uLong *sourceLen);
 int hash_size(uint32_t id);
 
 #endif

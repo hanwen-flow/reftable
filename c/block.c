@@ -13,7 +13,14 @@ https://developers.google.com/open-source/licenses/bsd
 #include "record.h"
 #include "reftable-error.h"
 #include "system.h"
-#include "zlib.h"
+#include <zlib.h>
+
+#ifdef NO_UNCOMPRESS2
+/* This is uncompress2, which is only available in zlib as of 2017.
+ */
+int uncompress2(Bytef *dest, uLongf *destLen, const Bytef *source,
+		uLong *sourceLen);
+#endif
 
 int header_size(int version)
 {
@@ -211,10 +218,9 @@ int block_reader_init(struct block_reader *br, struct reftable_block *block,
 		memcpy(uncompressed, block->data, block_header_skip);
 
 		/* Uncompress */
-		if (Z_OK != uncompress_return_consumed(
-				    uncompressed + block_header_skip, &dst_len,
-				    block->data + block_header_skip,
-				    &src_len)) {
+		if (Z_OK !=
+		    uncompress2(uncompressed + block_header_skip, &dst_len,
+				block->data + block_header_skip, &src_len)) {
 			reftable_free(uncompressed);
 			return REFTABLE_ZLIB_ERROR;
 		}
