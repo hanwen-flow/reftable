@@ -565,7 +565,7 @@ static void test_table_empty(void)
 	strbuf_release(&buf);
 }
 
-int reftable_test_main(int argc, const char *argv[])
+int readwrite_test_main(int argc, const char *argv[])
 {
 	RUN_TEST(test_log_write_read);
 	RUN_TEST(test_table_read_write_seek_linear_sha256);

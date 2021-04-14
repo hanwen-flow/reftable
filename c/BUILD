@@ -109,14 +109,14 @@ cc_test(
 )
 
 cc_test(
-    name = "reftable_test",
-    srcs = ["reftable_test.c"],
+    name = "readwrite_test",
+    srcs = ["readwrite_test.c"],
     deps = [
         ":reftable",
         ":testlib",
     ],
     copts = [
-        "-Dreftable_test_main=main",
+        "-Dreadwrite_test_main=main",
         "-fvisibility=protected",
     ] + GIT_COPTS,
 )
