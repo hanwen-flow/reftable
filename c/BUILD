@@ -36,7 +36,7 @@ cc_library(
         "reader.c",
         "record.c",
         "refname.c",
-        "reftable.c",
+        "generic.c",
         "strbuf.c",
         "stack.c",
         "tree.c",
