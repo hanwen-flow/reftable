@@ -267,8 +267,7 @@ int reftable_writer_add_ref(struct reftable_writer *w,
 	if (err < 0)
 		return err;
 
-	if (!w->opts.skip_index_objects &&
-	    reftable_ref_record_val1(ref) != NULL) {
+	if (!w->opts.skip_index_objects && reftable_ref_record_val1(ref)) {
 		struct strbuf h = STRBUF_INIT;
 		strbuf_add(&h, (char *)reftable_ref_record_val1(ref),
 			   hash_size(w->opts.hash_id));
@@ -276,8 +275,7 @@ int reftable_writer_add_ref(struct reftable_writer *w,
 		strbuf_release(&h);
 	}
 
-	if (!w->opts.skip_index_objects &&
-	    reftable_ref_record_val2(ref) != NULL) {
+	if (!w->opts.skip_index_objects && reftable_ref_record_val2(ref)) {
 		struct strbuf h = STRBUF_INIT;
 		strbuf_add(&h, reftable_ref_record_val2(ref),
 			   hash_size(w->opts.hash_id));
@@ -303,7 +301,7 @@ static int reftable_writer_add_log_verbatim(struct reftable_writer *w,
 					    struct reftable_log_record *log)
 {
 	struct reftable_record rec = { NULL };
-	if (w->block_writer != NULL &&
+	if (w->block_writer &&
 	    block_writer_type(w->block_writer) == BLOCK_TYPE_REF) {
 		int err = writer_finish_public_section(w);
 		if (err < 0)
@@ -331,7 +329,7 @@ int reftable_writer_add_log(struct reftable_writer *w,
 		return REFTABLE_API_ERROR;
 
 	input_log_message = log->update.message;
-	if (!w->opts.exact_log_message && log->update.message != NULL) {
+	if (!w->opts.exact_log_message && log->update.message) {
 		strbuf_addstr(&cleaned_message, log->update.message);
 		while (cleaned_message.len &&
 		       cleaned_message.buf[cleaned_message.len - 1] == '\n')
@@ -445,7 +443,7 @@ static void update_common(void *void_arg, void *key)
 {
 	struct common_prefix_arg *arg = void_arg;
 	struct obj_index_tree_node *entry = key;
-	if (arg->last != NULL) {
+	if (arg->last) {
 		int n = common_prefix_size(&entry->hash, arg->last);
 		if (n > arg->max) {
 			arg->max = n;
@@ -508,14 +506,14 @@ static int writer_dump_object_index(struct reftable_writer *w)
 {
 	struct write_record_arg closure = { .w = w };
 	struct common_prefix_arg common = { NULL };
-	if (w->obj_index_tree != NULL) {
+	if (w->obj_index_tree) {
 		infix_walk(w->obj_index_tree, &update_common, &common);
 	}
 	w->stats.object_id_len = common.max + 1;
 
 	writer_reinit_block_writer(w, BLOCK_TYPE_OBJ);
 
-	if (w->obj_index_tree != NULL) {
+	if (w->obj_index_tree) {
 		infix_walk(w->obj_index_tree, &write_object_record, &closure);
 	}
 
@@ -543,7 +541,7 @@ static int writer_finish_public_section(struct reftable_writer *w)
 			return err;
 	}
 
-	if (w->obj_index_tree != NULL) {
+	if (w->obj_index_tree) {
 		infix_walk(w->obj_index_tree, &object_record_free, NULL);
 		tree_free(w->obj_index_tree);
 		w->obj_index_tree = NULL;

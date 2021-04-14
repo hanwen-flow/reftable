@@ -50,7 +50,7 @@ static void test_pq(void)
 
 		merged_iter_pqueue_check(pq);
 
-		if (last != NULL) {
+		if (last) {
 			assert(strcmp(last, ref->refname) < 0);
 		}
 		last = ref->refname;

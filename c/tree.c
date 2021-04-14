@@ -39,11 +39,11 @@ struct tree_node *tree_search(void *key, struct tree_node **rootp,
 void infix_walk(struct tree_node *t, void (*action)(void *arg, void *key),
 		void *arg)
 {
-	if (t->left != NULL) {
+	if (t->left) {
 		infix_walk(t->left, action, arg);
 	}
 	action(arg, t->key);
-	if (t->right != NULL) {
+	if (t->right) {
 		infix_walk(t->right, action, arg);
 	}
 }
@@ -53,10 +53,10 @@ void tree_free(struct tree_node *t)
 	if (t == NULL) {
 		return;
 	}
-	if (t->left != NULL) {
+	if (t->left) {
 		tree_free(t->left);
 	}
-	if (t->right != NULL) {
+	if (t->right) {
 		tree_free(t->right);
 	}
 	reftable_free(t);

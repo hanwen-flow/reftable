@@ -92,7 +92,7 @@ static int compact_stack(const char *stackdir)
 	if (err < 0)
 		goto done;
 done:
-	if (stack != NULL) {
+	if (stack) {
 		reftable_stack_destroy(stack);
 	}
 	return err;

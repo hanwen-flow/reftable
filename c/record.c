@@ -206,7 +206,7 @@ static void reftable_ref_record_copy_from(void *rec, const void *src_rec,
 	/* This is simple and correct, but we could probably reuse the hash
 	 * fields. */
 	reftable_ref_record_release(ref);
-	if (src->refname != NULL) {
+	if (src->refname) {
 		ref->refname = xstrdup(src->refname);
 	}
 	ref->update_index = src->update_index;
@@ -241,7 +241,7 @@ static char hexdigit(int c)
 static void hex_format(char *dest, uint8_t *src, int hash_size)
 {
 	assert(hash_size > 0);
-	if (src != NULL) {
+	if (src) {
 		int i = 0;
 		for (i = 0; i < hash_size; i++) {
 			dest[2 * i] = hexdigit(src[i] >> 4);
@@ -632,29 +632,29 @@ static void reftable_log_record_copy_from(void *rec, const void *src_rec,
 
 	reftable_log_record_release(dst);
 	*dst = *src;
-	if (dst->refname != NULL) {
+	if (dst->refname) {
 		dst->refname = xstrdup(dst->refname);
 	}
 	switch (dst->value_type) {
 	case REFTABLE_LOG_DELETION:
 		break;
 	case REFTABLE_LOG_UPDATE:
-		if (dst->update.email != NULL) {
+		if (dst->update.email) {
 			dst->update.email = xstrdup(dst->update.email);
 		}
-		if (dst->update.name != NULL) {
+		if (dst->update.name) {
 			dst->update.name = xstrdup(dst->update.name);
 		}
-		if (dst->update.message != NULL) {
+		if (dst->update.message) {
 			dst->update.message = xstrdup(dst->update.message);
 		}
 
-		if (dst->update.new_hash != NULL) {
+		if (dst->update.new_hash) {
 			dst->update.new_hash = reftable_malloc(hash_size);
 			memcpy(dst->update.new_hash, src->update.new_hash,
 			       hash_size);
 		}
-		if (dst->update.old_hash != NULL) {
+		if (dst->update.old_hash) {
 			dst->update.old_hash = reftable_malloc(hash_size);
 			memcpy(dst->update.old_hash, src->update.old_hash,
 			       hash_size);
@@ -1134,7 +1134,7 @@ struct reftable_log_record *reftable_record_as_log(struct reftable_record *rec)
 
 static int hash_equal(uint8_t *a, uint8_t *b, int hash_size)
 {
-	if (a != NULL && b != NULL)
+	if (a && b)
 		return !memcmp(a, b, hash_size);
 
 	return a == b;

@@ -143,7 +143,7 @@ void reftable_stack_destroy(struct reftable_stack *st)
 {
 	char **names = NULL;
 	int err = 0;
-	if (st->merged != NULL) {
+	if (st->merged) {
 		reftable_merged_table_free(st->merged);
 		st->merged = NULL;
 	}
@@ -153,7 +153,7 @@ void reftable_stack_destroy(struct reftable_stack *st)
 		FREE_AND_NULL(names);
 	}
 
-	if (st->readers != NULL) {
+	if (st->readers) {
 		int i = 0;
 		struct strbuf filename = STRBUF_INIT;
 		for (i = 0; i < st->readers_len; i++) {
@@ -214,7 +214,7 @@ static int reftable_stack_reload_once(struct reftable_stack *st, char **names,
 		   tables under control so this is not quadratic. */
 		int j = 0;
 		for (j = 0; reuse_open && j < cur_len; j++) {
-			if (cur[j] != NULL && 0 == strcmp(cur[j]->name, name)) {
+			if (cur[j] && 0 == strcmp(cur[j]->name, name)) {
 				rd = cur[j];
 				cur[j] = NULL;
 				break;
@@ -251,11 +251,11 @@ static int reftable_stack_reload_once(struct reftable_stack *st, char **names,
 
 	new_tables = NULL;
 	st->readers_len = new_readers_len;
-	if (st->merged != NULL) {
+	if (st->merged) {
 		merged_table_release(st->merged);
 		reftable_merged_table_free(st->merged);
 	}
-	if (st->readers != NULL) {
+	if (st->readers) {
 		reftable_free(st->readers);
 	}
 	st->readers = new_readers;
@@ -265,7 +265,7 @@ static int reftable_stack_reload_once(struct reftable_stack *st, char **names,
 	new_merged->suppress_deletions = 1;
 	st->merged = new_merged;
 	for (i = 0; i < cur_len; i++) {
-		if (cur[i] != NULL) {
+		if (cur[i]) {
 			const char *name = reader_name(cur[i]);
 			struct strbuf filename = STRBUF_INIT;
 			stack_filename(&filename, st, name);
@@ -394,7 +394,7 @@ static int stack_uptodate(struct reftable_stack *st)
 		}
 	}
 
-	if (names[st->merged->stack_len] != NULL) {
+	if (names[st->merged->stack_len]) {
 		err = 1;
 		goto done;
 	}
@@ -837,12 +837,12 @@ static int stack_write_compact(struct reftable_stack *st,
 			continue;
 		}
 
-		if (config != NULL && config->min_update_index > 0 &&
+		if (config && config->min_update_index > 0 &&
 		    log.update_index < config->min_update_index) {
 			continue;
 		}
 
-		if (config != NULL && config->time > 0 &&
+		if (config && config->time > 0 &&
 		    log.update.time < config->time) {
 			continue;
 		}
@@ -856,7 +856,7 @@ static int stack_write_compact(struct reftable_stack *st,
 
 done:
 	reftable_iterator_destroy(&it);
-	if (mt != NULL) {
+	if (mt) {
 		merged_table_release(mt);
 		reftable_merged_table_free(mt);
 	}
@@ -1295,7 +1295,7 @@ done:
 static int is_table_name(const char *s)
 {
 	const char *dot = strrchr(s, '.');
-	return dot != NULL && !strcmp(dot, ".ref");
+	return dot && !strcmp(dot, ".ref");
 }
 
 static void remove_maybe_stale_table(struct reftable_stack *st, uint64_t max,
@@ -1336,7 +1336,7 @@ static int reftable_stack_clean_locked(struct reftable_stack *st)
 		return REFTABLE_IO_ERROR;
 	}
 
-	while ((d = readdir(dir)) != NULL) {
+	while ((d = readdir(dir))) {
 		int i = 0;
 		int found = 0;
 		if (!is_table_name(d->d_name))

@@ -37,7 +37,7 @@ static int count_dir_entries(const char *dirname)
 	if (dir == NULL)
 		return 0;
 
-	while ((d = readdir(dir)) != NULL) {
+	while ((d = readdir(dir))) {
 		if (!strcmp(d->d_name, "..") || !strcmp(d->d_name, "."))
 			continue;
 		len++;
@@ -74,7 +74,7 @@ static void test_read_file(void)
 	err = read_lines(fn, &names);
 	EXPECT_ERR(err);
 
-	for (i = 0; names[i] != NULL; i++) {
+	for (i = 0; names[i]; i++) {
 		EXPECT(0 == strcmp(want[i], names[i]));
 	}
 	free_names(names);

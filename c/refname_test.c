@@ -78,11 +78,11 @@ static void test_conflict(void)
 			.tab = tab,
 		};
 
-		if (cases[i].add != NULL) {
+		if (cases[i].add) {
 			mod.add = &cases[i].add;
 			mod.add_len = 1;
 		}
-		if (cases[i].del != NULL) {
+		if (cases[i].del) {
 			mod.del = &cases[i].del;
 			mod.del_len = 1;
 		}
