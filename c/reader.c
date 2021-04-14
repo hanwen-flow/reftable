@@ -34,7 +34,7 @@ int block_source_read_block(struct reftable_block_source *source,
 
 void block_source_close(struct reftable_block_source *source)
 {
-	if (source->ops == NULL) {
+	if (!source->ops) {
 		return;
 	}
 
@@ -241,7 +241,7 @@ static int table_iter_next_in_block(struct table_iter *ti,
 
 static void table_iter_block_done(struct table_iter *ti)
 {
-	if (ti->bi.br == NULL) {
+	if (!ti->bi.br) {
 		return;
 	}
 	reftable_block_done(&ti->bi.br->block);
@@ -386,7 +386,7 @@ static struct reftable_iterator_vtable table_iter_vtable = {
 static void iterator_from_table_iter(struct reftable_iterator *it,
 				     struct table_iter *ti)
 {
-	assert(it->ops == NULL);
+	assert(!it->ops);
 	it->iter_arg = ti;
 	it->ops = &table_iter_vtable;
 }
@@ -767,7 +767,7 @@ static struct reftable_table_vtable reader_vtable = {
 void reftable_table_from_reader(struct reftable_table *tab,
 				struct reftable_reader *reader)
 {
-	assert(tab->ops == NULL);
+	assert(!tab->ops);
 	tab->ops = &reader_vtable;
 	tab->table_arg = reader;
 }

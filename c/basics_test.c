@@ -62,7 +62,7 @@ static void test_parse_names_normal(void)
 	parse_names(in, strlen(in), &out);
 	EXPECT(!strcmp(out[0], "a"));
 	EXPECT(!strcmp(out[1], "b"));
-	EXPECT(out[2] == NULL);
+	EXPECT(!out[2]);
 	free_names(out);
 }
 
@@ -72,7 +72,7 @@ static void test_parse_names_drop_empty(void)
 	char **out = NULL;
 	parse_names(in, strlen(in), &out);
 	EXPECT(!strcmp(out[0], "a"));
-	EXPECT(out[1] == NULL);
+	EXPECT(!out[1]);
 	free_names(out);
 }
 

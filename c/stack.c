@@ -194,7 +194,7 @@ static struct reftable_reader **stack_copy_readers(struct reftable_stack *st,
 static int reftable_stack_reload_once(struct reftable_stack *st, char **names,
 				      int reuse_open)
 {
-	int cur_len = st->merged == NULL ? 0 : st->merged->stack_len;
+	int cur_len = !st->merged ? 0 : st->merged->stack_len;
 	struct reftable_reader **cur = stack_copy_readers(st, cur_len);
 	int err = 0;
 	int names_len = names_length(names);
@@ -221,7 +221,7 @@ static int reftable_stack_reload_once(struct reftable_stack *st, char **names,
 			}
 		}
 
-		if (rd == NULL) {
+		if (!rd) {
 			struct reftable_block_source src = { NULL };
 			struct strbuf table_path = STRBUF_INIT;
 			stack_filename(&table_path, st, name);
@@ -383,7 +383,7 @@ static int stack_uptodate(struct reftable_stack *st)
 		return err;
 
 	for (i = 0; i < st->readers_len; i++) {
-		if (names[i] == NULL) {
+		if (!names[i]) {
 			err = 1;
 			goto done;
 		}
@@ -523,7 +523,7 @@ static void reftable_addition_close(struct reftable_addition *add)
 
 void reftable_addition_destroy(struct reftable_addition *add)
 {
-	if (add == NULL) {
+	if (!add) {
 		return;
 	}
 	reftable_addition_close(add);
@@ -888,7 +888,7 @@ static int stack_compact_range(struct reftable_stack *st, int first, int last,
 	int j = 0;
 	int is_empty_table = 0;
 
-	if (first > last || (expiry == NULL && first == last)) {
+	if (first > last || (!expiry && first == last)) {
 		err = 0;
 		goto done;
 	}
@@ -1332,7 +1332,7 @@ static int reftable_stack_clean_locked(struct reftable_stack *st)
 		reftable_stack_merged_table(st));
 	DIR *dir = opendir(st->reftable_dir);
 	struct dirent *d = NULL;
-	if (dir == NULL) {
+	if (!dir) {
 		return REFTABLE_IO_ERROR;
 	}
 

@@ -165,7 +165,7 @@ static struct reftable_iterator_vtable merged_iter_vtable = {
 static void iterator_from_merged_iter(struct reftable_iterator *it,
 				      struct merged_iter *mi)
 {
-	assert(it->ops == NULL);
+	assert(!it->ops);
 	it->iter_arg = mi;
 	it->ops = &merged_iter_vtable;
 }
@@ -212,7 +212,7 @@ void merged_table_release(struct reftable_merged_table *mt)
 
 void reftable_merged_table_free(struct reftable_merged_table *mt)
 {
-	if (mt == NULL) {
+	if (!mt) {
 		return;
 	}
 	merged_table_release(mt);
@@ -356,7 +356,7 @@ static struct reftable_table_vtable merged_table_vtable = {
 void reftable_table_from_merged_table(struct reftable_table *tab,
 				      struct reftable_merged_table *merged)
 {
-	assert(tab->ops == NULL);
+	assert(!tab->ops);
 	tab->ops = &merged_table_vtable;
 	tab->table_arg = merged;
 }

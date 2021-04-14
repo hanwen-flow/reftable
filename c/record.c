@@ -709,10 +709,10 @@ static int reftable_log_record_encode(const void *rec, struct string_view s,
 
 	oldh = r->update.old_hash;
 	newh = r->update.new_hash;
-	if (oldh == NULL) {
+	if (!oldh) {
 		oldh = zero;
 	}
-	if (newh == NULL) {
+	if (!newh) {
 		newh = zero;
 	}
 
@@ -853,10 +853,10 @@ done:
 static int null_streq(char *a, char *b)
 {
 	char *empty = "";
-	if (a == NULL)
+	if (!a)
 		a = empty;
 
-	if (b == NULL)
+	if (!b)
 		b = empty;
 
 	return 0 == strcmp(a, b);
@@ -864,10 +864,10 @@ static int null_streq(char *a, char *b)
 
 static int zero_hash_eq(uint8_t *a, uint8_t *b, int sz)
 {
-	if (a == NULL)
+	if (!a)
 		a = zero;
 
-	if (b == NULL)
+	if (!b)
 		b = zero;
 
 	return !memcmp(a, b, sz);
@@ -1091,7 +1091,7 @@ int reftable_record_is_deletion(struct reftable_record *rec)
 void reftable_record_from_ref(struct reftable_record *rec,
 			      struct reftable_ref_record *ref_rec)
 {
-	assert(rec->ops == NULL);
+	assert(!rec->ops);
 	rec->data = ref_rec;
 	rec->ops = &reftable_ref_record_vtable;
 }
@@ -1099,7 +1099,7 @@ void reftable_record_from_ref(struct reftable_record *rec,
 void reftable_record_from_obj(struct reftable_record *rec,
 			      struct reftable_obj_record *obj_rec)
 {
-	assert(rec->ops == NULL);
+	assert(!rec->ops);
 	rec->data = obj_rec;
 	rec->ops = &reftable_obj_record_vtable;
 }
@@ -1107,7 +1107,7 @@ void reftable_record_from_obj(struct reftable_record *rec,
 void reftable_record_from_index(struct reftable_record *rec,
 				struct reftable_index_record *index_rec)
 {
-	assert(rec->ops == NULL);
+	assert(!rec->ops);
 	rec->data = index_rec;
 	rec->ops = &reftable_index_record_vtable;
 }
@@ -1115,7 +1115,7 @@ void reftable_record_from_index(struct reftable_record *rec,
 void reftable_record_from_log(struct reftable_record *rec,
 			      struct reftable_log_record *log_rec)
 {
-	assert(rec->ops == NULL);
+	assert(!rec->ops);
 	rec->data = log_rec;
 	rec->ops = &reftable_log_record_vtable;
 }

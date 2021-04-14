@@ -49,7 +49,7 @@ static struct reftable_block_source_vtable strbuf_vtable = {
 void block_source_from_strbuf(struct reftable_block_source *bs,
 			      struct strbuf *buf)
 {
-	assert(bs->ops == NULL);
+	assert(!bs->ops);
 	bs->ops = &strbuf_vtable;
 	bs->arg = buf;
 }
@@ -141,7 +141,7 @@ int reftable_block_source_from_file(struct reftable_block_source *bs,
 	p->size = st.st_size;
 	p->fd = fd;
 
-	assert(bs->ops == NULL);
+	assert(!bs->ops);
 	bs->ops = &file_vtable;
 	bs->arg = p;
 	return 0;

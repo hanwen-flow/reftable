@@ -55,7 +55,7 @@ int binsearch(size_t sz, int (*f)(size_t k, void *args), void *args)
 void free_names(char **a)
 {
 	char **p;
-	if (a == NULL) {
+	if (!a) {
 		return;
 	}
 	for (p = a; *p; p++) {

@@ -18,7 +18,7 @@ https://developers.google.com/open-source/licenses/bsd
 
 int iterator_is_null(struct reftable_iterator *it)
 {
-	return it->ops == NULL;
+	return !it->ops;
 }
 
 static void filtering_ref_iterator_close(void *iter_arg)
@@ -85,7 +85,7 @@ static struct reftable_iterator_vtable filtering_ref_iterator_vtable = {
 void iterator_from_filtering_ref_iterator(struct reftable_iterator *it,
 					  struct filtering_ref_iterator *fri)
 {
-	assert(it->ops == NULL);
+	assert(!it->ops);
 	it->iter_arg = fri;
 	it->ops = &filtering_ref_iterator_vtable;
 }
@@ -187,7 +187,7 @@ static struct reftable_iterator_vtable indexed_table_ref_iter_vtable = {
 void iterator_from_indexed_table_ref_iter(struct reftable_iterator *it,
 					  struct indexed_table_ref_iter *itr)
 {
-	assert(it->ops == NULL);
+	assert(!it->ops);
 	it->iter_arg = itr;
 	it->ops = &indexed_table_ref_iter_vtable;
 }

@@ -64,7 +64,7 @@ uint32_t reftable_table_hash_id(struct reftable_table *tab)
 
 void reftable_iterator_destroy(struct reftable_iterator *it)
 {
-	if (it->ops == NULL) {
+	if (!it->ops) {
 		return;
 	}
 	it->ops->close(it->iter_arg);
@@ -109,7 +109,7 @@ static struct reftable_iterator_vtable empty_vtable = {
 
 void iterator_set_empty(struct reftable_iterator *it)
 {
-	assert(it->ops == NULL);
+	assert(!it->ops);
 	it->iter_arg = NULL;
 	it->ops = &empty_vtable;
 }
