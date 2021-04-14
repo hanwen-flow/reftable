@@ -18,19 +18,19 @@ static void test_copy(struct reftable_record *rec)
 {
 	struct reftable_record copy =
 		reftable_new_record(reftable_record_type(rec));
-	reftable_record_copy_from(&copy, rec, SHA1_SIZE);
+	reftable_record_copy_from(&copy, rec, GIT_SHA1_RAWSZ);
 	/* do it twice to catch memory leaks */
-	reftable_record_copy_from(&copy, rec, SHA1_SIZE);
+	reftable_record_copy_from(&copy, rec, GIT_SHA1_RAWSZ);
 	switch (reftable_record_type(&copy)) {
 	case BLOCK_TYPE_REF:
 		EXPECT(reftable_ref_record_equal(reftable_record_as_ref(&copy),
 						 reftable_record_as_ref(rec),
-						 SHA1_SIZE));
+						 GIT_SHA1_RAWSZ));
 		break;
 	case BLOCK_TYPE_LOG:
 		EXPECT(reftable_log_record_equal(reftable_record_as_log(&copy),
 						 reftable_record_as_log(rec),
-						 SHA1_SIZE));
+						 GIT_SHA1_RAWSZ));
 		break;
 	}
 	reftable_record_destroy(&copy);
@@ -96,7 +96,7 @@ static void test_common_prefix(void)
 static void set_hash(uint8_t *h, int j)
 {
 	int i = 0;
-	for (i = 0; i < hash_size(SHA1_ID); i++) {
+	for (i = 0; i < hash_size(GIT_SHA1_HASH_ID); i++) {
 		h[i] = (j >> i) & 0xff;
 	}
 }
@@ -124,13 +124,14 @@ static void test_reftable_ref_record_roundtrip(void)
 		case REFTABLE_REF_DELETION:
 			break;
 		case REFTABLE_REF_VAL1:
-			in.value.val1 = reftable_malloc(SHA1_SIZE);
+			in.value.val1 = reftable_malloc(GIT_SHA1_RAWSZ);
 			set_hash(in.value.val1, 1);
 			break;
 		case REFTABLE_REF_VAL2:
-			in.value.val2.value = reftable_malloc(SHA1_SIZE);
+			in.value.val2.value = reftable_malloc(GIT_SHA1_RAWSZ);
 			set_hash(in.value.val2.value, 1);
-			in.value.val2.target_value = reftable_malloc(SHA1_SIZE);
+			in.value.val2.target_value =
+				reftable_malloc(GIT_SHA1_RAWSZ);
 			set_hash(in.value.val2.target_value, 2);
 			break;
 		case REFTABLE_REF_SYMREF:
@@ -145,16 +146,17 @@ static void test_reftable_ref_record_roundtrip(void)
 		EXPECT(reftable_record_val_type(&rec) == i);
 
 		reftable_record_key(&rec, &key);
-		n = reftable_record_encode(&rec, dest, SHA1_SIZE);
+		n = reftable_record_encode(&rec, dest, GIT_SHA1_RAWSZ);
 		EXPECT(n > 0);
 
 		/* decode into a non-zero reftable_record to test for leaks. */
 
 		reftable_record_from_ref(&rec_out, &out);
-		m = reftable_record_decode(&rec_out, key, i, dest, SHA1_SIZE);
+		m = reftable_record_decode(&rec_out, key, i, dest,
+					   GIT_SHA1_RAWSZ);
 		EXPECT(n == m);
 
-		EXPECT(reftable_ref_record_equal(&in, &out, SHA1_SIZE));
+		EXPECT(reftable_ref_record_equal(&in, &out, GIT_SHA1_RAWSZ));
 		reftable_record_release(&rec_out);
 
 		strbuf_release(&key);
@@ -175,9 +177,9 @@ static void test_reftable_log_record_equal(void)
 		}
 	};
 
-	EXPECT(!reftable_log_record_equal(&in[0], &in[1], SHA1_SIZE));
+	EXPECT(!reftable_log_record_equal(&in[0], &in[1], GIT_SHA1_RAWSZ));
 	in[1].update_index = in[0].update_index;
-	EXPECT(reftable_log_record_equal(&in[0], &in[1], SHA1_SIZE));
+	EXPECT(reftable_log_record_equal(&in[0], &in[1], GIT_SHA1_RAWSZ));
 	reftable_log_record_release(&in[0]);
 	reftable_log_record_release(&in[1]);
 }
@@ -190,8 +192,8 @@ static void test_reftable_log_record_roundtrip(void)
 			.update_index = 42,
 			.value_type = REFTABLE_LOG_UPDATE,
 			.update = {
-				.old_hash = reftable_malloc(SHA1_SIZE),
-				.new_hash = reftable_malloc(SHA1_SIZE),
+				.old_hash = reftable_malloc(GIT_SHA1_RAWSZ),
+				.new_hash = reftable_malloc(GIT_SHA1_RAWSZ),
 				.name = xstrdup("han-wen"),
 				.email = xstrdup("hanwen@google.com"),
 				.message = xstrdup("test"),
@@ -220,8 +222,8 @@ static void test_reftable_log_record_roundtrip(void)
 			.refname = xstrdup("old name"),
 			.value_type = REFTABLE_LOG_UPDATE,
 			.update = {
-				.new_hash = reftable_calloc(SHA1_SIZE),
-				.old_hash = reftable_calloc(SHA1_SIZE),
+				.new_hash = reftable_calloc(GIT_SHA1_RAWSZ),
+				.old_hash = reftable_calloc(GIT_SHA1_RAWSZ),
 				.name = xstrdup("old name"),
 				.email = xstrdup("old@email"),
 				.message = xstrdup("old message"),
@@ -236,15 +238,15 @@ static void test_reftable_log_record_roundtrip(void)
 
 		reftable_record_key(&rec, &key);
 
-		n = reftable_record_encode(&rec, dest, SHA1_SIZE);
+		n = reftable_record_encode(&rec, dest, GIT_SHA1_RAWSZ);
 		EXPECT(n >= 0);
 		reftable_record_from_log(&rec_out, &out);
 		valtype = reftable_record_val_type(&rec);
 		m = reftable_record_decode(&rec_out, key, valtype, dest,
-					   SHA1_SIZE);
+					   GIT_SHA1_RAWSZ);
 		EXPECT(n == m);
 
-		EXPECT(reftable_log_record_equal(&in[i], &out, SHA1_SIZE));
+		EXPECT(reftable_log_record_equal(&in[i], &out, GIT_SHA1_RAWSZ));
 		reftable_log_record_release(&in[i]);
 		strbuf_release(&key);
 		reftable_record_release(&rec_out);
@@ -295,7 +297,7 @@ static void test_key_roundtrip(void)
 
 static void test_reftable_obj_record_roundtrip(void)
 {
-	uint8_t testHash1[SHA1_SIZE] = { 1, 2, 3, 4, 0 };
+	uint8_t testHash1[GIT_SHA1_RAWSZ] = { 1, 2, 3, 4, 0 };
 	uint64_t till9[] = { 1, 2, 3, 4, 500, 600, 700, 800, 9000 };
 	struct reftable_obj_record recs[3] = { {
 						       .hash_prefix = testHash1,
@@ -331,12 +333,12 @@ static void test_reftable_obj_record_roundtrip(void)
 		reftable_record_from_obj(&rec, &in);
 		test_copy(&rec);
 		reftable_record_key(&rec, &key);
-		n = reftable_record_encode(&rec, dest, SHA1_SIZE);
+		n = reftable_record_encode(&rec, dest, GIT_SHA1_RAWSZ);
 		EXPECT(n > 0);
 		extra = reftable_record_val_type(&rec);
 		reftable_record_from_obj(&rec_out, &out);
 		m = reftable_record_decode(&rec_out, key, extra, dest,
-					   SHA1_SIZE);
+					   GIT_SHA1_RAWSZ);
 		EXPECT(n == m);
 
 		EXPECT(in.hash_prefix_len == out.hash_prefix_len);
@@ -375,12 +377,12 @@ static void test_reftable_index_record_roundtrip(void)
 	test_copy(&rec);
 
 	EXPECT(0 == strbuf_cmp(&key, &in.last_key));
-	n = reftable_record_encode(&rec, dest, SHA1_SIZE);
+	n = reftable_record_encode(&rec, dest, GIT_SHA1_RAWSZ);
 	EXPECT(n > 0);
 
 	extra = reftable_record_val_type(&rec);
 	reftable_record_from_index(&out_rec, &out);
-	m = reftable_record_decode(&out_rec, key, extra, dest, SHA1_SIZE);
+	m = reftable_record_decode(&out_rec, key, extra, dest, GIT_SHA1_RAWSZ);
 	EXPECT(m == n);
 
 	EXPECT(in.offset == out.offset);

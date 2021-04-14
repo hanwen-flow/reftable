@@ -47,6 +47,8 @@ cc_library(
         "generic.h",
         "git-compat-util.h",
         "constants.h",
+        "dir.h",
+        "hash.h",
         "iter.h",
         "merged.h",
         "pq.h",

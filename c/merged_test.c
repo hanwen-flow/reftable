@@ -82,7 +82,7 @@ merged_table_from_records(struct reftable_ref_record **refs,
 		reftable_table_from_reader(&tabs[i], (*readers)[i]);
 	}
 
-	err = reftable_new_merged_table(&mt, tabs, n, SHA1_ID);
+	err = reftable_new_merged_table(&mt, tabs, n, GIT_SHA1_HASH_ID);
 	EXPECT_ERR(err);
 	return mt;
 }
@@ -97,7 +97,7 @@ static void readers_destroy(struct reftable_reader **readers, size_t n)
 
 static void test_merged_between(void)
 {
-	uint8_t hash1[SHA1_SIZE] = { 1, 2, 3, 0 };
+	uint8_t hash1[GIT_SHA1_RAWSZ] = { 1, 2, 3, 0 };
 
 	struct reftable_ref_record r1[] = { {
 		.refname = "b",
@@ -139,8 +139,8 @@ static void test_merged_between(void)
 
 static void test_merged(void)
 {
-	uint8_t hash1[SHA1_SIZE] = { 1 };
-	uint8_t hash2[SHA1_SIZE] = { 2 };
+	uint8_t hash1[GIT_SHA1_RAWSZ] = { 1 };
+	uint8_t hash2[GIT_SHA1_RAWSZ] = { 2 };
 	struct reftable_ref_record r1[] = {
 		{
 			.refname = "a",
@@ -221,7 +221,8 @@ static void test_merged(void)
 
 	assert(ARRAY_SIZE(want) == len);
 	for (i = 0; i < len; i++) {
-		assert(reftable_ref_record_equal(&want[i], &out[i], SHA1_SIZE));
+		assert(reftable_ref_record_equal(&want[i], &out[i],
+						 GIT_SHA1_RAWSZ));
 	}
 	for (i = 0; i < len; i++) {
 		reftable_ref_record_release(&out[i]);
@@ -269,10 +270,10 @@ static void test_default_write_opts(void)
 	EXPECT_ERR(err);
 
 	hash_id = reftable_reader_hash_id(rd);
-	assert(hash_id == SHA1_ID);
+	assert(hash_id == GIT_SHA1_HASH_ID);
 
 	reftable_table_from_reader(&tab[0], rd);
-	err = reftable_new_merged_table(&merged, tab, 1, SHA1_ID);
+	err = reftable_new_merged_table(&merged, tab, 1, GIT_SHA1_HASH_ID);
 	EXPECT_ERR(err);
 
 	reftable_reader_free(rd);

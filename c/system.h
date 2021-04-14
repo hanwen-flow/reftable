@@ -9,20 +9,16 @@ https://developers.google.com/open-source/licenses/bsd
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
+// This header glues the reftable library to the rest of Git
+
 #include "git-compat-util.h"
 #include "strbuf.h"
+#include "hash.h" /* hash ID, sizes.*/
+#include "dir.h" /* remove_dir_recursively, for tests.*/
 
 #include <zlib.h>
 
 struct strbuf;
-/* In git, this is declared in dir.h */
-int remove_dir_recursively(struct strbuf *path, int flags);
-
-#define SHA1_ID 0x73686131
-#define SHA256_ID 0x73323536
-#define SHA1_SIZE 20
-#define SHA256_SIZE 32
-
 int hash_size(uint32_t id);
 
 #endif

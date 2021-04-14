@@ -254,7 +254,7 @@ static void hex_format(char *dest, uint8_t *src, int hash_size)
 void reftable_ref_record_print(struct reftable_ref_record *ref,
 			       uint32_t hash_id)
 {
-	char hex[2 * SHA256_SIZE + 1] = { 0 }; /* BUG */
+	char hex[2 * GIT_SHA256_RAWSZ + 1] = { 0 }; /* BUG */
 	printf("ref{%s(%" PRIu64 ") ", ref->refname, ref->update_index);
 	switch (ref->value_type) {
 	case REFTABLE_REF_SYMREF:
@@ -588,7 +588,7 @@ static struct reftable_record_vtable reftable_obj_record_vtable = {
 void reftable_log_record_print(struct reftable_log_record *log,
 			       uint32_t hash_id)
 {
-	char hex[SHA256_SIZE + 1] = { 0 };
+	char hex[GIT_SHA256_RAWSZ + 1] = { 0 };
 
 	switch (log->value_type) {
 	case REFTABLE_LOG_DELETION:
@@ -694,7 +694,7 @@ static uint8_t reftable_log_record_val_type(const void *rec)
 	return reftable_log_record_is_deletion(log) ? 0 : 1;
 }
 
-static uint8_t zero[SHA256_SIZE] = { 0 };
+static uint8_t zero[GIT_SHA256_RAWSZ] = { 0 };
 
 static int reftable_log_record_encode(const void *rec, struct string_view s,
 				      int hash_size)

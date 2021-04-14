@@ -49,10 +49,10 @@ int hash_size(uint32_t id)
 {
 	switch (id) {
 	case 0:
-	case SHA1_ID:
-		return SHA1_SIZE;
-	case SHA256_ID:
-		return SHA256_SIZE;
+	case GIT_SHA1_HASH_ID:
+		return GIT_SHA1_RAWSZ;
+	case GIT_SHA256_HASH_ID:
+		return GIT_SHA256_RAWSZ;
 	}
 	abort();
 }
