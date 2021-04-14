@@ -234,6 +234,7 @@ cc_test(
     data = [ t ])
  for t in ["record_test",
            "merged_test",
+           "readwrite_test",
            "refname_test",
            "tree_test",
            "block_test",

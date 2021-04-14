@@ -95,6 +95,7 @@ static void indexed_table_ref_iter_close(void *p)
 	struct indexed_table_ref_iter *it = p;
 	block_iter_close(&it->cur);
 	reftable_block_done(&it->block_reader.block);
+	reftable_free(it->offsets);
 	strbuf_release(&it->oid);
 }
 
