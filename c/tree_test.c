@@ -24,7 +24,7 @@ struct curry {
 
 static void check_increasing(void *arg, void *key)
 {
-	struct curry *c = (struct curry *)arg;
+	struct curry *c = arg;
 	if (c->last != NULL) {
 		assert(test_compare(c->last, key) < 0);
 	}

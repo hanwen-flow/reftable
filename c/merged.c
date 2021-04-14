@@ -45,7 +45,7 @@ static int merged_iter_init(struct merged_iter *mi)
 
 static void merged_iter_close(void *p)
 {
-	struct merged_iter *mi = (struct merged_iter *)p;
+	struct merged_iter *mi = p;
 	int i = 0;
 	merged_iter_pqueue_release(&mi->pq);
 	for (i = 0; i < mi->stack_len; i++) {
@@ -150,7 +150,7 @@ static int merged_iter_next(struct merged_iter *mi, struct reftable_record *rec)
 
 static int merged_iter_next_void(void *p, struct reftable_record *rec)
 {
-	struct merged_iter *mi = (struct merged_iter *)p;
+	struct merged_iter *mi = p;
 	if (merged_iter_pqueue_is_empty(mi->pq))
 		return 1;
 
@@ -193,8 +193,7 @@ int reftable_new_merged_table(struct reftable_merged_table **dest,
 		}
 	}
 
-	m = (struct reftable_merged_table *)reftable_calloc(
-		sizeof(struct reftable_merged_table));
+	m = reftable_calloc(sizeof(struct reftable_merged_table));
 	m->stack = stack;
 	m->stack_len = n;
 	m->min = first_min;
@@ -329,26 +328,22 @@ static int reftable_merged_table_seek_void(void *tab,
 					   struct reftable_iterator *it,
 					   struct reftable_record *rec)
 {
-	return merged_table_seek_record((struct reftable_merged_table *)tab, it,
-					rec);
+	return merged_table_seek_record(tab, it, rec);
 }
 
 static uint32_t reftable_merged_table_hash_id_void(void *tab)
 {
-	return reftable_merged_table_hash_id(
-		(struct reftable_merged_table *)tab);
+	return reftable_merged_table_hash_id(tab);
 }
 
 static uint64_t reftable_merged_table_min_update_index_void(void *tab)
 {
-	return reftable_merged_table_min_update_index(
-		(struct reftable_merged_table *)tab);
+	return reftable_merged_table_min_update_index(tab);
 }
 
 static uint64_t reftable_merged_table_max_update_index_void(void *tab)
 {
-	return reftable_merged_table_max_update_index(
-		(struct reftable_merged_table *)tab);
+	return reftable_merged_table_max_update_index(tab);
 }
 
 static struct reftable_table_vtable merged_table_vtable = {

@@ -368,12 +368,12 @@ static int table_iter_next(struct table_iter *ti, struct reftable_record *rec)
 
 static int table_iter_next_void(void *ti, struct reftable_record *rec)
 {
-	return table_iter_next((struct table_iter *)ti, rec);
+	return table_iter_next(ti, rec);
 }
 
 static void table_iter_close(void *p)
 {
-	struct table_iter *ti = (struct table_iter *)p;
+	struct table_iter *ti = p;
 	table_iter_block_done(ti);
 	block_iter_close(&ti->bi);
 }
@@ -739,22 +739,22 @@ uint64_t reftable_reader_min_update_index(struct reftable_reader *r)
 static int reftable_reader_seek_void(void *tab, struct reftable_iterator *it,
 				     struct reftable_record *rec)
 {
-	return reader_seek((struct reftable_reader *)tab, it, rec);
+	return reader_seek(tab, it, rec);
 }
 
 static uint32_t reftable_reader_hash_id_void(void *tab)
 {
-	return reftable_reader_hash_id((struct reftable_reader *)tab);
+	return reftable_reader_hash_id(tab);
 }
 
 static uint64_t reftable_reader_min_update_index_void(void *tab)
 {
-	return reftable_reader_min_update_index((struct reftable_reader *)tab);
+	return reftable_reader_min_update_index(tab);
 }
 
 static uint64_t reftable_reader_max_update_index_void(void *tab)
 {
-	return reftable_reader_max_update_index((struct reftable_reader *)tab);
+	return reftable_reader_max_update_index(tab);
 }
 
 static struct reftable_table_vtable reader_vtable = {

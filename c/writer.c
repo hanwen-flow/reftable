@@ -443,8 +443,8 @@ struct common_prefix_arg {
 
 static void update_common(void *void_arg, void *key)
 {
-	struct common_prefix_arg *arg = (struct common_prefix_arg *)void_arg;
-	struct obj_index_tree_node *entry = (struct obj_index_tree_node *)key;
+	struct common_prefix_arg *arg = void_arg;
+	struct obj_index_tree_node *entry = key;
 	if (arg->last != NULL) {
 		int n = common_prefix_size(&entry->hash, arg->last);
 		if (n > arg->max) {
@@ -461,8 +461,8 @@ struct write_record_arg {
 
 static void write_object_record(void *void_arg, void *key)
 {
-	struct write_record_arg *arg = (struct write_record_arg *)void_arg;
-	struct obj_index_tree_node *entry = (struct obj_index_tree_node *)key;
+	struct write_record_arg *arg = void_arg;
+	struct obj_index_tree_node *entry = key;
 	struct reftable_obj_record obj_rec = {
 		.hash_prefix = (uint8_t *)entry->hash.buf,
 		.hash_prefix_len = arg->w->stats.object_id_len,
@@ -497,7 +497,7 @@ done:;
 
 static void object_record_free(void *void_arg, void *key)
 {
-	struct obj_index_tree_node *entry = (struct obj_index_tree_node *)key;
+	struct obj_index_tree_node *entry = key;
 
 	FREE_AND_NULL(entry->offsets);
 	strbuf_release(&entry->hash);

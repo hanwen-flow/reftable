@@ -19,7 +19,7 @@ struct find_arg {
 
 static int find_name(size_t k, void *arg)
 {
-	struct find_arg *f_arg = (struct find_arg *)arg;
+	struct find_arg *f_arg = arg;
 	return strcmp(f_arg->names[k], f_arg->want) >= 0;
 }
 

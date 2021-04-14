@@ -58,6 +58,6 @@ int strbuf_cmp(const struct strbuf *a, const struct strbuf *b);
 ssize_t strbuf_add(struct strbuf *dest, const void *data, size_t sz);
 
 /* Append `add` to `dest. */
-void strbuf_addbuf(struct strbuf *dest, struct strbuf *add);
+void strbuf_addbuf(struct strbuf *dest, const struct strbuf *add);
 
 #endif

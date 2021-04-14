@@ -19,7 +19,7 @@ struct binsearch_args {
 
 static int binsearch_func(size_t i, void *void_args)
 {
-	struct binsearch_args *args = (struct binsearch_args *)void_args;
+	struct binsearch_args *args = void_args;
 
 	return args->key < args->arr[i];
 }

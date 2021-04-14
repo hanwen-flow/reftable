@@ -283,7 +283,7 @@ struct restart_find_args {
 
 static int restart_key_less(size_t idx, void *args)
 {
-	struct restart_find_args *a = (struct restart_find_args *)args;
+	struct restart_find_args *a = args;
 	uint32_t off = block_reader_restart_offset(a->r, idx);
 	struct string_view in = {
 		.buf = a->r->block.data + off,

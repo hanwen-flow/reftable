@@ -23,8 +23,7 @@ int iterator_is_null(struct reftable_iterator *it)
 
 static void filtering_ref_iterator_close(void *iter_arg)
 {
-	struct filtering_ref_iterator *fri =
-		(struct filtering_ref_iterator *)iter_arg;
+	struct filtering_ref_iterator *fri = iter_arg;
 	strbuf_release(&fri->oid);
 	reftable_iterator_destroy(&fri->it);
 }
@@ -32,10 +31,8 @@ static void filtering_ref_iterator_close(void *iter_arg)
 static int filtering_ref_iterator_next(void *iter_arg,
 				       struct reftable_record *rec)
 {
-	struct filtering_ref_iterator *fri =
-		(struct filtering_ref_iterator *)iter_arg;
-	struct reftable_ref_record *ref =
-		(struct reftable_ref_record *)rec->data;
+	struct filtering_ref_iterator *fri = iter_arg;
+	struct reftable_ref_record *ref = rec->data;
 	int err = 0;
 	while (1) {
 		err = reftable_iterator_next_ref(&fri->it, ref);
@@ -95,7 +92,7 @@ void iterator_from_filtering_ref_iterator(struct reftable_iterator *it,
 
 static void indexed_table_ref_iter_close(void *p)
 {
-	struct indexed_table_ref_iter *it = (struct indexed_table_ref_iter *)p;
+	struct indexed_table_ref_iter *it = p;
 	block_iter_close(&it->cur);
 	reftable_block_done(&it->block_reader.block);
 	strbuf_release(&it->oid);
@@ -128,9 +125,8 @@ static int indexed_table_ref_iter_next_block(struct indexed_table_ref_iter *it)
 
 static int indexed_table_ref_iter_next(void *p, struct reftable_record *rec)
 {
-	struct indexed_table_ref_iter *it = (struct indexed_table_ref_iter *)p;
-	struct reftable_ref_record *ref =
-		(struct reftable_ref_record *)rec->data;
+	struct indexed_table_ref_iter *it = p;
+	struct reftable_ref_record *ref = rec->data;
 
 	while (1) {
 		int err = block_iter_next(&it->cur, rec);

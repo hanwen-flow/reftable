@@ -62,7 +62,7 @@ void strbuf_addstr(struct strbuf *d, const char *s)
 	memcpy(d->buf + l1, s, l2);
 }
 
-void strbuf_addbuf(struct strbuf *s, struct strbuf *a)
+void strbuf_addbuf(struct strbuf *s, const struct strbuf *a)
 {
 	int end = s->len;
 	assert(s->canary == STRBUF_CANARY);
