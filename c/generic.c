@@ -23,6 +23,18 @@ int reftable_table_seek_ref(struct reftable_table *tab,
 	return tab->ops->seek_record(tab->table_arg, it, &rec);
 }
 
+int reftable_table_seek_log(struct reftable_table *tab,
+			    struct reftable_iterator *it, const char *name)
+{
+	struct reftable_log_record log = {
+		.refname = (char *)name,
+		.update_index = ~((uint64_t)0),
+	};
+	struct reftable_record rec = { NULL };
+	reftable_record_from_log(&rec, &log);
+	return tab->ops->seek_record(tab->table_arg, it, &rec);
+}
+
 int reftable_table_read_ref(struct reftable_table *tab, const char *name,
 			    struct reftable_ref_record *ref)
 {
@@ -45,6 +57,48 @@ int reftable_table_read_ref(struct reftable_table *tab, const char *name,
 done:
 	reftable_iterator_destroy(&it);
 	return err;
+}
+
+int reftable_table_print(struct reftable_table *tab) {
+	struct reftable_iterator it = { NULL };
+	struct reftable_ref_record ref = { NULL };
+	struct reftable_log_record log = { NULL };
+	uint32_t hash_id = reftable_table_hash_id(tab);
+	int err = reftable_table_seek_ref(tab, &it, "");
+	if (err < 0) {
+		return err;
+	}
+
+	while (1) {
+		err = reftable_iterator_next_ref(&it, &ref);
+		if (err > 0) {
+			break;
+		}
+		if (err < 0) {
+			return err;
+		}
+		reftable_ref_record_print(&ref, hash_id);
+	}
+	reftable_iterator_destroy(&it);
+	reftable_ref_record_release(&ref);
+
+	err = reftable_table_seek_log(tab, &it, "");
+	if (err < 0) {
+		return err;
+	}
+	while (1) {
+		err = reftable_iterator_next_log(&it, &log);
+		if (err > 0) {
+			break;
+		}
+		if (err < 0) {
+			return err;
+		}
+		reftable_log_record_print(&log, hash_id);
+	}
+	reftable_iterator_destroy(&it);
+	reftable_log_record_release(&log);
+	return 0;
 }
 
 uint64_t reftable_table_max_update_index(struct reftable_table *tab)

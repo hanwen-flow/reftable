@@ -120,4 +120,7 @@ struct reftable_compaction_stats {
 struct reftable_compaction_stats *
 reftable_stack_compaction_stats(struct reftable_stack *st);
 
+/* print the entire stack represented by the directory */
+int reftable_stack_print_directory(const char *stackdir);
+
 #endif

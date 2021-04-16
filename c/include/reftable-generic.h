@@ -21,6 +21,9 @@ struct reftable_table {
 	void *table_arg;
 };
 
+int reftable_table_seek_log(struct reftable_table *tab,
+			    struct reftable_iterator *it, const char *name);
+
 int reftable_table_seek_ref(struct reftable_table *tab,
 			    struct reftable_iterator *it, const char *name);
 
@@ -37,5 +40,8 @@ uint64_t reftable_table_min_update_index(struct reftable_table *tab);
    for success, and 1 if ref not found. */
 int reftable_table_read_ref(struct reftable_table *tab, const char *name,
 			    struct reftable_ref_record *ref);
+
+/* dump table contents onto stdout for debugging */
+int reftable_table_print(struct reftable_table *tab);
 
 #endif

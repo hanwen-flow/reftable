@@ -21,63 +21,7 @@ https://developers.google.com/open-source/licenses/bsd
 #include "reftable-iterator.h"
 #include "reftable-reader.h"
 #include "reftable-stack.h"
-
-static uint32_t hash_id;
-
-static int dump_table(const char *tablename)
-{
-	struct reftable_block_source src = { NULL };
-	int err = reftable_block_source_from_file(&src, tablename);
-	struct reftable_iterator it = { NULL };
-	struct reftable_ref_record ref = { NULL };
-	struct reftable_log_record log = { NULL };
-	struct reftable_reader *r = NULL;
-
-	if (err < 0)
-		return err;
-
-	err = reftable_new_reader(&r, &src, tablename);
-	if (err < 0)
-		return err;
-
-	err = reftable_reader_seek_ref(r, &it, "");
-	if (err < 0) {
-		return err;
-	}
-
-	while (1) {
-		err = reftable_iterator_next_ref(&it, &ref);
-		if (err > 0) {
-			break;
-		}
-		if (err < 0) {
-			return err;
-		}
-		reftable_ref_record_print(&ref, hash_id);
-	}
-	reftable_iterator_destroy(&it);
-	reftable_ref_record_release(&ref);
-
-	err = reftable_reader_seek_log(r, &it, "");
-	if (err < 0) {
-		return err;
-	}
-	while (1) {
-		err = reftable_iterator_next_log(&it, &log);
-		if (err > 0) {
-			break;
-		}
-		if (err < 0) {
-			return err;
-		}
-		reftable_log_record_print(&log, hash_id);
-	}
-	reftable_iterator_destroy(&it);
-	reftable_log_record_release(&log);
-
-	reftable_reader_free(r);
-	return 0;
-}
+#include "reftable-generic.h"
 
 static int compact_stack(const char *stackdir)
 {
@@ -98,60 +42,6 @@ done:
 	return err;
 }
 
-static int dump_stack(const char *stackdir)
-{
-	struct reftable_stack *stack = NULL;
-	struct reftable_write_options cfg = { 0 };
-	struct reftable_iterator it = { NULL };
-	struct reftable_ref_record ref = { NULL };
-	struct reftable_log_record log = { NULL };
-	struct reftable_merged_table *merged = NULL;
-
-	int err = reftable_new_stack(&stack, stackdir, cfg);
-	if (err < 0)
-		return err;
-
-	merged = reftable_stack_merged_table(stack);
-
-	err = reftable_merged_table_seek_ref(merged, &it, "");
-	if (err < 0) {
-		return err;
-	}
-
-	while (1) {
-		err = reftable_iterator_next_ref(&it, &ref);
-		if (err > 0) {
-			break;
-		}
-		if (err < 0) {
-			return err;
-		}
-		reftable_ref_record_print(&ref, hash_id);
-	}
-	reftable_iterator_destroy(&it);
-	reftable_ref_record_release(&ref);
-
-	err = reftable_merged_table_seek_log(merged, &it, "");
-	if (err < 0) {
-		return err;
-	}
-	while (1) {
-		err = reftable_iterator_next_log(&it, &log);
-		if (err > 0) {
-			break;
-		}
-		if (err < 0) {
-			return err;
-		}
-		reftable_log_record_print(&log, hash_id);
-	}
-	reftable_iterator_destroy(&it);
-	reftable_log_record_release(&log);
-
-	reftable_stack_destroy(stack);
-	return 0;
-}
-
 static void print_help(void)
 {
 	printf("usage: dump [-cst] arg\n\n"
@@ -160,7 +50,6 @@ static void print_help(void)
 	       "  -t dump table\n"
 	       "  -s dump stack\n"
 	       "  -h this help\n"
-	       "  -2 use SHA256\n"
 	       "\n");
 }
 
@@ -175,8 +64,6 @@ int reftable_dump_main(int argc, char *const *argv)
 	for (; argc > 1; argv++, argc--)
 		if (*argv[1] != '-')
 			break;
-		else if (!strcmp("-2", argv[1]))
-			hash_id = 0x73323536;
 		else if (!strcmp("-t", argv[1]))
 			opt_dump_table = 1;
 		else if (!strcmp("-s", argv[1]))
@@ -197,9 +84,9 @@ int reftable_dump_main(int argc, char *const *argv)
 	arg = argv[1];
 
 	if (opt_dump_table) {
-		err = dump_table(arg);
+		err = reftable_reader_print_file(arg);
 	} else if (opt_dump_stack) {
-		err = dump_stack(arg);
+		err = reftable_stack_print_directory(arg);
 	} else if (opt_compact) {
 		err = compact_stack(arg);
 	}
