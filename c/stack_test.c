@@ -55,6 +55,13 @@ static char *get_tmp_template(const char *prefix)
 	return template;
 }
 
+static char *get_tmp_dir(const char *prefix)
+{
+	char *dir = get_tmp_template(prefix);
+	EXPECT(mkdtemp(dir));
+	return dir;
+}
+
 static void test_read_file(void)
 {
 	char *fn = get_tmp_template(__FUNCTION__);
@@ -126,7 +133,8 @@ static int write_test_log(struct reftable_writer *wr, void *arg)
 
 static void test_reftable_stack_add_one(void)
 {
-	char *dir = get_tmp_template(__FUNCTION__);
+	char *dir = get_tmp_dir(__FUNCTION__);
+
 	struct reftable_write_options cfg = { 0 };
 	struct reftable_stack *st = NULL;
 	int err;
@@ -138,7 +146,6 @@ static void test_reftable_stack_add_one(void)
 	};
 	struct reftable_ref_record dest = { NULL };
 
-	EXPECT(mkdtemp(dir));
 
 	err = reftable_new_stack(&st, dir, cfg);
 	EXPECT_ERR(err);
@@ -160,7 +167,8 @@ static void test_reftable_stack_uptodate(void)
 	struct reftable_write_options cfg = { 0 };
 	struct reftable_stack *st1 = NULL;
 	struct reftable_stack *st2 = NULL;
-	char *dir = get_tmp_template(__FUNCTION__);
+	char *dir = get_tmp_dir(__FUNCTION__);
+
 	int err;
 	struct reftable_ref_record ref1 = {
 		.refname = "HEAD",
@@ -175,7 +183,6 @@ static void test_reftable_stack_uptodate(void)
 		.value.symref = "master",
 	};
 
-	EXPECT(mkdtemp(dir));
 
 	/* simulate multi-process access to the same stack
 	   by creating two stacks for the same directory.
@@ -204,7 +211,8 @@ static void test_reftable_stack_uptodate(void)
 
 static void test_reftable_stack_transaction_api(void)
 {
-	char *dir = get_tmp_template(__FUNCTION__);
+	char *dir = get_tmp_dir(__FUNCTION__);
+
 	struct reftable_write_options cfg = { 0 };
 	struct reftable_stack *st = NULL;
 	int err;
@@ -218,7 +226,6 @@ static void test_reftable_stack_transaction_api(void)
 	};
 	struct reftable_ref_record dest = { NULL };
 
-	EXPECT(mkdtemp(dir));
 
 	err = reftable_new_stack(&st, dir, cfg);
 	EXPECT_ERR(err);
@@ -251,7 +258,8 @@ static void test_reftable_stack_validate_refname(void)
 	struct reftable_write_options cfg = { 0 };
 	struct reftable_stack *st = NULL;
 	int err;
-	char *dir = get_tmp_template(__FUNCTION__);
+	char *dir = get_tmp_dir(__FUNCTION__);
+
 	int i;
 	struct reftable_ref_record ref = {
 		.refname = "a/b",
@@ -261,7 +269,6 @@ static void test_reftable_stack_validate_refname(void)
 	};
 	char *additions[] = { "a", "a/b/c" };
 
-	EXPECT(mkdtemp(dir));
 	err = reftable_new_stack(&st, dir, cfg);
 	EXPECT_ERR(err);
 
@@ -291,7 +298,8 @@ static int write_error(struct reftable_writer *wr, void *arg)
 
 static void test_reftable_stack_update_index_check(void)
 {
-	char *dir = get_tmp_template(__FUNCTION__);
+	char *dir = get_tmp_dir(__FUNCTION__);
+
 	struct reftable_write_options cfg = { 0 };
 	struct reftable_stack *st = NULL;
 	int err;
@@ -307,7 +315,6 @@ static void test_reftable_stack_update_index_check(void)
 		.value_type = REFTABLE_REF_SYMREF,
 		.value.symref = "master",
 	};
-	EXPECT(mkdtemp(dir));
 
 	err = reftable_new_stack(&st, dir, cfg);
 	EXPECT_ERR(err);
@@ -323,11 +330,11 @@ static void test_reftable_stack_update_index_check(void)
 
 static void test_reftable_stack_lock_failure(void)
 {
-	char *dir = get_tmp_template(__FUNCTION__);
+	char *dir = get_tmp_dir(__FUNCTION__);
+
 	struct reftable_write_options cfg = { 0 };
 	struct reftable_stack *st = NULL;
 	int err, i;
-	EXPECT(mkdtemp(dir));
 
 	err = reftable_new_stack(&st, dir, cfg);
 	EXPECT_ERR(err);
@@ -348,12 +355,12 @@ static void test_reftable_stack_add(void)
 		.exact_log_message = 1,
 	};
 	struct reftable_stack *st = NULL;
-	char *dir = get_tmp_template(__FUNCTION__);
+	char *dir = get_tmp_dir(__FUNCTION__);
+
 	struct reftable_ref_record refs[2] = { { NULL } };
 	struct reftable_log_record logs[2] = { { NULL } };
 	int N = ARRAY_SIZE(refs);
 
-	EXPECT(mkdtemp(dir));
 
 	err = reftable_new_stack(&st, dir, cfg);
 	EXPECT_ERR(err);
@@ -429,7 +436,8 @@ static void test_reftable_stack_log_normalize(void)
 		0,
 	};
 	struct reftable_stack *st = NULL;
-	char *dir = get_tmp_template(__FUNCTION__);
+	char *dir = get_tmp_dir(__FUNCTION__);
+
 
 	uint8_t h1[GIT_SHA1_RAWSZ] = { 0x01 }, h2[GIT_SHA1_RAWSZ] = { 0x02 };
 
@@ -448,7 +456,6 @@ static void test_reftable_stack_log_normalize(void)
 		.update_index = 1,
 	};
 
-	EXPECT(mkdtemp(dir));
 	err = reftable_new_stack(&st, dir, cfg);
 	EXPECT_ERR(err);
 
@@ -481,7 +488,8 @@ static void test_reftable_stack_log_normalize(void)
 static void test_reftable_stack_tombstone(void)
 {
 	int i = 0;
-	char *dir = get_tmp_template(__FUNCTION__);
+	char *dir = get_tmp_dir(__FUNCTION__);
+
 	struct reftable_write_options cfg = { 0 };
 	struct reftable_stack *st = NULL;
 	int err;
@@ -491,7 +499,6 @@ static void test_reftable_stack_tombstone(void)
 	struct reftable_ref_record dest = { NULL };
 	struct reftable_log_record log_dest = { NULL };
 
-	EXPECT(mkdtemp(dir));
 
 	err = reftable_new_stack(&st, dir, cfg);
 	EXPECT_ERR(err);
@@ -560,7 +567,8 @@ static void test_reftable_stack_tombstone(void)
 
 static void test_reftable_stack_hash_id(void)
 {
-	char *dir = get_tmp_template(__FUNCTION__);
+	char *dir = get_tmp_dir(__FUNCTION__);
+
 	struct reftable_write_options cfg = { 0 };
 	struct reftable_stack *st = NULL;
 	int err;
@@ -577,7 +585,6 @@ static void test_reftable_stack_hash_id(void)
 	struct reftable_stack *st_default = NULL;
 	struct reftable_ref_record dest = { NULL };
 
-	EXPECT(mkdtemp(dir));
 	err = reftable_new_stack(&st, dir, cfg);
 	EXPECT_ERR(err);
 
@@ -668,7 +675,8 @@ static void test_suggest_compaction_segment_nothing(void)
 
 static void test_reflog_expire(void)
 {
-	char *dir = get_tmp_template(__FUNCTION__);
+	char *dir = get_tmp_dir(__FUNCTION__);
+
 	struct reftable_write_options cfg = { 0 };
 	struct reftable_stack *st = NULL;
 	struct reftable_log_record logs[20] = { { NULL } };
@@ -680,7 +688,6 @@ static void test_reflog_expire(void)
 	};
 	struct reftable_log_record log = { NULL };
 
-	EXPECT(mkdtemp(dir));
 
 	err = reftable_new_stack(&st, dir, cfg);
 	EXPECT_ERR(err);
@@ -749,10 +756,10 @@ static void test_empty_add(void)
 	struct reftable_write_options cfg = { 0 };
 	struct reftable_stack *st = NULL;
 	int err;
-	char *dir = get_tmp_template(__FUNCTION__);
+	char *dir = get_tmp_dir(__FUNCTION__);
+
 	struct reftable_stack *st2 = NULL;
 
-	EXPECT(mkdtemp(dir));
 
 	err = reftable_new_stack(&st, dir, cfg);
 	EXPECT_ERR(err);
@@ -771,10 +778,10 @@ static void test_reftable_stack_auto_compaction(void)
 {
 	struct reftable_write_options cfg = { 0 };
 	struct reftable_stack *st = NULL;
-	char *dir = get_tmp_template(__FUNCTION__);
+	char *dir = get_tmp_dir(__FUNCTION__);
+
 	int err, i;
 	int N = 100;
-	EXPECT(mkdtemp(dir));
 
 	err = reftable_new_stack(&st, dir, cfg);
 	EXPECT_ERR(err);
@@ -806,10 +813,10 @@ static void test_reftable_stack_compaction_concurrent(void)
 {
 	struct reftable_write_options cfg = { 0 };
 	struct reftable_stack *st1 = NULL, *st2 = NULL;
-	char *dir = get_tmp_template(__FUNCTION__);
+	char *dir = get_tmp_dir(__FUNCTION__);
+
 	int err, i;
 	int N = 3;
-	EXPECT(mkdtemp(dir));
 
 	err = reftable_new_stack(&st1, dir, cfg);
 	EXPECT_ERR(err);
@@ -856,10 +863,10 @@ static void test_reftable_stack_compaction_concurrent_clean(void)
 {
 	struct reftable_write_options cfg = { 0 };
 	struct reftable_stack *st1 = NULL, *st2 = NULL, *st3 = NULL;
-	char *dir = get_tmp_template(__FUNCTION__);
+	char *dir = get_tmp_dir(__FUNCTION__);
+
 	int err, i;
 	int N = 3;
-	EXPECT(mkdtemp(dir));
 
 	err = reftable_new_stack(&st1, dir, cfg);
 	EXPECT_ERR(err);
