@@ -503,6 +503,7 @@ static void test_reftable_stack_tombstone(void)
 	err = reftable_new_stack(&st, dir, cfg);
 	EXPECT_ERR(err);
 
+	/* even entries add the refs, odd entries delete them. */
 	for (i = 0; i < N; i++) {
 		const char *buf = "branch";
 		refs[i].refname = xstrdup(buf);
@@ -528,6 +529,7 @@ static void test_reftable_stack_tombstone(void)
 		int err = reftable_stack_add(st, &write_test_ref, &refs[i]);
 		EXPECT_ERR(err);
 	}
+
 	for (i = 0; i < N; i++) {
 		struct write_log_arg arg = {
 			.log = &logs[i],
@@ -910,29 +912,29 @@ static void test_reftable_stack_compaction_concurrent_clean(void)
 
 int stack_test_main(int argc, const char *argv[])
 {
-	RUN_TEST(test_reftable_stack_compaction_concurrent_clean);
-	RUN_TEST(test_reftable_stack_compaction_concurrent);
-	RUN_TEST(test_reftable_stack_uptodate);
-	RUN_TEST(test_reftable_stack_transaction_api);
-	RUN_TEST(test_reftable_stack_hash_id);
-	RUN_TEST(test_sizes_to_segments_all_equal);
+	RUN_TEST(test_empty_add);
+	RUN_TEST(test_log2);
+	RUN_TEST(test_names_equal);
+	RUN_TEST(test_parse_names);
+	RUN_TEST(test_read_file);
+	RUN_TEST(test_reflog_expire);
+	RUN_TEST(test_reftable_stack_add);
+	RUN_TEST(test_reftable_stack_add_one);
 	RUN_TEST(test_reftable_stack_auto_compaction);
-	RUN_TEST(test_reftable_stack_validate_refname);
-	RUN_TEST(test_reftable_stack_update_index_check);
+	RUN_TEST(test_reftable_stack_compaction_concurrent);
+	RUN_TEST(test_reftable_stack_compaction_concurrent_clean);
+	RUN_TEST(test_reftable_stack_hash_id);
 	RUN_TEST(test_reftable_stack_lock_failure);
 	RUN_TEST(test_reftable_stack_log_normalize);
 	RUN_TEST(test_reftable_stack_tombstone);
-	RUN_TEST(test_reftable_stack_add_one);
-	RUN_TEST(test_empty_add);
-	RUN_TEST(test_reflog_expire);
+	RUN_TEST(test_reftable_stack_transaction_api);
+	RUN_TEST(test_reftable_stack_update_index_check);
+	RUN_TEST(test_reftable_stack_uptodate);
+	RUN_TEST(test_reftable_stack_validate_refname);
+	RUN_TEST(test_sizes_to_segments);
+	RUN_TEST(test_sizes_to_segments_all_equal);
+	RUN_TEST(test_sizes_to_segments_empty);
 	RUN_TEST(test_suggest_compaction_segment);
 	RUN_TEST(test_suggest_compaction_segment_nothing);
-	RUN_TEST(test_sizes_to_segments);
-	RUN_TEST(test_sizes_to_segments_empty);
-	RUN_TEST(test_log2);
-	RUN_TEST(test_parse_names);
-	RUN_TEST(test_read_file);
-	RUN_TEST(test_names_equal);
-	RUN_TEST(test_reftable_stack_add);
 	return 0;
 }
