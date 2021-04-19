@@ -210,12 +210,13 @@ static void writer_index_hash(struct reftable_writer *w, struct strbuf *hash)
 static int writer_add_record(struct reftable_writer *w,
 			     struct reftable_record *rec)
 {
-	int result = -1;
 	struct strbuf key = STRBUF_INIT;
-	int err = 0;
+	int err = -1;
 	reftable_record_key(rec, &key);
-	if (strbuf_cmp(&w->last_key, &key) >= 0)
+	if (strbuf_cmp(&w->last_key, &key) >= 0) {
+		err = REFTABLE_API_ERROR;
 		goto done;
+	}
 
 	strbuf_reset(&w->last_key);
 	strbuf_addbuf(&w->last_key, &key);
@@ -226,27 +227,25 @@ static int writer_add_record(struct reftable_writer *w,
 	assert(block_writer_type(w->block_writer) == reftable_record_type(rec));
 
 	if (block_writer_add(w->block_writer, rec) == 0) {
-		result = 0;
+		err = 0;
 		goto done;
 	}
 
 	err = writer_flush_block(w);
 	if (err < 0) {
-		result = err;
 		goto done;
 	}
 
 	writer_reinit_block_writer(w, reftable_record_type(rec));
 	err = block_writer_add(w->block_writer, rec);
 	if (err < 0) {
-		result = err;
 		goto done;
 	}
 
-	result = 0;
+	err = 0;
 done:
 	strbuf_release(&key);
-	return result;
+	return err;
 }
 
 int reftable_writer_add_ref(struct reftable_writer *w,

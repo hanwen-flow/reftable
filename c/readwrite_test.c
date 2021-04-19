@@ -566,9 +566,46 @@ static void test_table_empty(void)
 	strbuf_release(&buf);
 }
 
+static void test_write_key_order(void)
+{
+	struct reftable_write_options opts = { 0 };
+	struct strbuf buf = STRBUF_INIT;
+	struct reftable_writer *w =
+		reftable_new_writer(&strbuf_add_void, &buf, &opts);
+	struct reftable_ref_record refs[2] = {
+		{
+			.refname = "b",
+			.update_index = 1,
+			.value_type = REFTABLE_REF_SYMREF,
+			.value = {
+				.symref = "target",
+			},
+		}, {
+			.refname = "a",
+			.update_index = 1,
+			.value_type = REFTABLE_REF_SYMREF,
+			.value = {
+				.symref = "target",
+			},
+		}
+	};
+	int err;
+
+	reftable_writer_set_limits(w, 1, 1);
+	err = reftable_writer_add_ref(w, &refs[0]);
+	EXPECT_ERR(err);
+	err = reftable_writer_add_ref(w, &refs[1]);
+	printf("%d\n", err);
+	EXPECT(err == REFTABLE_API_ERROR);
+	reftable_writer_close(w);
+	reftable_writer_free(w);
+	strbuf_release(&buf);
+}
+
 int readwrite_test_main(int argc, const char *argv[])
 {
 	RUN_TEST(test_log_write_read);
+	RUN_TEST(test_write_key_order);
 	RUN_TEST(test_table_read_write_seek_linear_sha256);
 	RUN_TEST(test_log_buffer_size);
 	RUN_TEST(test_table_write_small_table);
