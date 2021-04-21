@@ -96,7 +96,7 @@ static void test_common_prefix(void)
 static void set_hash(uint8_t *h, int j)
 {
 	int i = 0;
-	for (i = 0; i < hash_size(GIT_SHA1_HASH_ID); i++) {
+	for (i = 0; i < hash_size(GIT_SHA1_FORMAT_ID); i++) {
 		h[i] = (j >> i) & 0xff;
 	}
 }

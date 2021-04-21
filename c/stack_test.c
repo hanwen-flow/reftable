@@ -581,7 +581,7 @@ static void test_reftable_stack_hash_id(void)
 		.value.symref = "target",
 		.update_index = 1,
 	};
-	struct reftable_write_options cfg32 = { .hash_id = GIT_SHA256_HASH_ID };
+	struct reftable_write_options cfg32 = { .hash_id = GIT_SHA256_FORMAT_ID };
 	struct reftable_stack *st32 = NULL;
 	struct reftable_write_options cfg_default = { 0 };
 	struct reftable_stack *st_default = NULL;

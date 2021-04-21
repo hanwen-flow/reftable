@@ -104,7 +104,7 @@ static void write_table(char ***names, struct strbuf *buf, int N,
 	for (i = 0; i < stats->ref_stats.blocks; i++) {
 		int off = i * opts.block_size;
 		if (off == 0) {
-			off = header_size((hash_id == GIT_SHA256_HASH_ID) ? 2 :
+			off = header_size((hash_id == GIT_SHA256_FORMAT_ID) ? 2 :
 										  1);
 		}
 		EXPECT(buf->buf[off] == 'r');
@@ -263,7 +263,7 @@ static void test_table_read_write_sequential(void)
 	int err = 0;
 	int j = 0;
 
-	write_table(&names, &buf, N, 256, GIT_SHA1_HASH_ID);
+	write_table(&names, &buf, N, 256, GIT_SHA1_FORMAT_ID);
 
 	block_source_from_strbuf(&source, &buf);
 
@@ -299,7 +299,7 @@ static void test_table_write_small_table(void)
 	char **names;
 	struct strbuf buf = STRBUF_INIT;
 	int N = 1;
-	write_table(&names, &buf, N, 4096, GIT_SHA1_HASH_ID);
+	write_table(&names, &buf, N, 4096, GIT_SHA1_FORMAT_ID);
 	EXPECT(buf.len < 200);
 	strbuf_release(&buf);
 	free_names(names);
@@ -317,7 +317,7 @@ static void test_table_read_api(void)
 	struct reftable_log_record log = { NULL };
 	struct reftable_iterator it = { NULL };
 
-	write_table(&names, &buf, N, 256, GIT_SHA1_HASH_ID);
+	write_table(&names, &buf, N, 256, GIT_SHA1_FORMAT_ID);
 
 	block_source_from_strbuf(&source, &buf);
 
@@ -406,17 +406,17 @@ static void test_table_read_write_seek(int index, int hash_id)
 
 static void test_table_read_write_seek_linear(void)
 {
-	test_table_read_write_seek(0, GIT_SHA1_HASH_ID);
+	test_table_read_write_seek(0, GIT_SHA1_FORMAT_ID);
 }
 
 static void test_table_read_write_seek_linear_sha256(void)
 {
-	test_table_read_write_seek(0, GIT_SHA256_HASH_ID);
+	test_table_read_write_seek(0, GIT_SHA256_FORMAT_ID);
 }
 
 static void test_table_read_write_seek_index(void)
 {
-	test_table_read_write_seek(1, GIT_SHA1_HASH_ID);
+	test_table_read_write_seek(1, GIT_SHA1_FORMAT_ID);
 }
 
 static void test_table_refs_for(int indexed)

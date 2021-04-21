@@ -82,7 +82,7 @@ merged_table_from_records(struct reftable_ref_record **refs,
 		reftable_table_from_reader(&tabs[i], (*readers)[i]);
 	}
 
-	err = reftable_new_merged_table(&mt, tabs, n, GIT_SHA1_HASH_ID);
+	err = reftable_new_merged_table(&mt, tabs, n, GIT_SHA1_FORMAT_ID);
 	EXPECT_ERR(err);
 	return mt;
 }
@@ -270,10 +270,10 @@ static void test_default_write_opts(void)
 	EXPECT_ERR(err);
 
 	hash_id = reftable_reader_hash_id(rd);
-	assert(hash_id == GIT_SHA1_HASH_ID);
+	assert(hash_id == GIT_SHA1_FORMAT_ID);
 
 	reftable_table_from_reader(&tab[0], rd);
-	err = reftable_new_merged_table(&merged, tab, 1, GIT_SHA1_HASH_ID);
+	err = reftable_new_merged_table(&merged, tab, 1, GIT_SHA1_FORMAT_ID);
 	EXPECT_ERR(err);
 
 	reftable_reader_free(rd);

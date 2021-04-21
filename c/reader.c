@@ -110,13 +110,13 @@ static int parse_footer(struct reftable_reader *r, uint8_t *footer,
 	f += 8;
 
 	if (r->version == 1) {
-		r->hash_id = GIT_SHA1_HASH_ID;
+		r->hash_id = GIT_SHA1_FORMAT_ID;
 	} else {
 		r->hash_id = get_be32(f);
 		switch (r->hash_id) {
-		case GIT_SHA1_HASH_ID:
+		case GIT_SHA1_FORMAT_ID:
 			break;
-		case GIT_SHA256_HASH_ID:
+		case GIT_SHA256_FORMAT_ID:
 			break;
 		default:
 			err = REFTABLE_FORMAT_ERROR;

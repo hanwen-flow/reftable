@@ -40,7 +40,7 @@ static void test_block_read_write(void)
 	block.len = block_size;
 	block.source = malloc_block_source();
 	block_writer_init(&bw, BLOCK_TYPE_REF, block.data, block_size,
-			  header_off, hash_size(GIT_SHA1_HASH_ID));
+			  header_off, hash_size(GIT_SHA1_FORMAT_ID));
 	reftable_record_from_ref(&rec, &ref);
 
 	for (i = 0; i < N; i++) {
