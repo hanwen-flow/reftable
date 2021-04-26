@@ -166,11 +166,18 @@ int init_reader(struct reftable_reader *r, struct reftable_block_source *source,
 	struct reftable_block footer = { NULL };
 	struct reftable_block header = { NULL };
 	int err = 0;
-
-	memset(r, 0, sizeof(struct reftable_reader));
+	uint64_t file_size = block_source_size(source);
 
 	/* Need +1 to read type of first block. */
-	err = block_source_read_block(source, &header, 0, header_size(2) + 1);
+	uint32_t read_size = header_size(2) + 1; /* read v2 because it's larger.  */
+	memset(r, 0, sizeof(struct reftable_reader));
+
+	if (read_size > file_size) {
+		err = REFTABLE_FORMAT_ERROR;
+		goto done;
+	}
+	
+	err = block_source_read_block(source, &header, 0, read_size);
 	if (err != header_size(2) + 1) {
 		err = REFTABLE_IO_ERROR;
 		goto done;
@@ -186,7 +193,7 @@ int init_reader(struct reftable_reader *r, struct reftable_block_source *source,
 		goto done;
 	}
 
-	r->size = block_source_size(source) - footer_size(r->version);
+	r->size = file_size - footer_size(r->version);
 	r->source = *source;
 	r->name = xstrdup(name);
 	r->hash_id = 0;

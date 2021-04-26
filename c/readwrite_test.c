@@ -530,7 +530,7 @@ static void test_table_refs_for_obj_index(void)
 	test_table_refs_for(1);
 }
 
-static void test_table_empty(void)
+static void test_write_empty_table(void)
 {
 	struct reftable_write_options opts = { 0 };
 	struct strbuf buf = STRBUF_INIT;
@@ -602,8 +602,37 @@ static void test_write_key_order(void)
 	strbuf_release(&buf);
 }
 
+static void test_corrupt_table_empty(void)
+{
+	struct strbuf buf = STRBUF_INIT;
+	struct reftable_block_source source = { NULL };
+	struct reftable_reader rd = { NULL };
+	int err;
+
+	block_source_from_strbuf(&source, &buf);
+	err = init_reader(&rd, &source, "file.log");
+	EXPECT(err == REFTABLE_FORMAT_ERROR);
+}
+
+static void test_corrupt_table(void)
+{
+	uint8_t zeros[1024] = { 0 };
+	struct strbuf buf = STRBUF_INIT;
+	struct reftable_block_source source = { NULL };
+	struct reftable_reader rd = { NULL };
+	int err;
+	strbuf_add(&buf, zeros, sizeof(zeros));
+
+	block_source_from_strbuf(&source, &buf);
+	err = init_reader(&rd, &source, "file.log");
+	EXPECT(err == REFTABLE_FORMAT_ERROR);
+	strbuf_release(&buf);
+}
+
 int readwrite_test_main(int argc, const char *argv[])
 {
+	RUN_TEST(test_corrupt_table);
+	RUN_TEST(test_corrupt_table_empty);
 	RUN_TEST(test_log_write_read);
 	RUN_TEST(test_write_key_order);
 	RUN_TEST(test_table_read_write_seek_linear_sha256);
@@ -616,6 +645,6 @@ int readwrite_test_main(int argc, const char *argv[])
 	RUN_TEST(test_table_read_write_seek_index);
 	RUN_TEST(test_table_refs_for_no_index);
 	RUN_TEST(test_table_refs_for_obj_index);
-	RUN_TEST(test_table_empty);
+	RUN_TEST(test_write_empty_table);
 	return 0;
 }
