@@ -89,7 +89,7 @@ static int writer_version(struct reftable_writer *w)
 
 static int writer_write_header(struct reftable_writer *w, uint8_t *dest)
 {
-	memcpy((char *)dest, "REFT", 4);
+	memcpy(dest, "REFT", 4);
 
 	dest[4] = writer_version(w);
 
