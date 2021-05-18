@@ -49,6 +49,11 @@ uint16_t get_be16(uint8_t *in);
 		memcpy(&a, &b, sizeof(a));      \
 		memcpy(&b, &tmp[0], sizeof(a)); \
 	}
+#define COPY_ARRAY(dst, src, n)                             \
+	do {                                                \
+		if (n > 0)                                  \
+			memcpy(dst, src, sizeof(*dst) * n); \
+	} while (0)
 
 char *xstrdup(const char *s);
 

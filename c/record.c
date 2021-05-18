@@ -463,16 +463,14 @@ static void reftable_obj_record_copy_from(void *rec, const void *src_rec,
 	struct reftable_obj_record *obj = rec;
 	const struct reftable_obj_record *src =
 		(const struct reftable_obj_record *)src_rec;
-	int olen;
 
 	reftable_obj_record_release(obj);
 	*obj = *src;
 	obj->hash_prefix = reftable_malloc(obj->hash_prefix_len);
 	memcpy(obj->hash_prefix, src->hash_prefix, obj->hash_prefix_len);
 
-	olen = obj->offset_len * sizeof(uint64_t);
-	obj->offsets = reftable_malloc(olen);
-	memcpy(obj->offsets, src->offsets, olen);
+	obj->offsets = reftable_malloc(obj->offset_len * sizeof(uint64_t));
+	COPY_ARRAY(obj->offsets, src->offsets, obj->offset_len);
 }
 
 static uint8_t reftable_obj_record_val_type(const void *rec)
