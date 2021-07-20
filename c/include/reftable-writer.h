@@ -9,9 +9,10 @@ https://developers.google.com/open-source/licenses/bsd
 #ifndef REFTABLE_WRITER_H
 #define REFTABLE_WRITER_H
 
-#include <stdint.h>
-
 #include "reftable-record.h"
+
+#include <stdint.h>
+#include <unistd.h> /* ssize_t */
 
 /* Writing single reftables */
 

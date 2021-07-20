@@ -6,12 +6,6 @@ license that can be found in the LICENSE file or at
 https://developers.google.com/open-source/licenses/bsd
 */
 
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-
 #include "reftable-blocksource.h"
 #include "reftable-error.h"
 #include "reftable-merged.h"
@@ -23,6 +17,12 @@ https://developers.google.com/open-source/licenses/bsd
 #include "reftable-stack.h"
 #include "reftable-generic.h"
 #include "hash.h"
+
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
 
 static int compact_stack(const char *stackdir)
 {
