@@ -157,6 +157,9 @@ static void test_reftable_stack_add_one(void)
 	EXPECT_ERR(err);
 	EXPECT(0 == strcmp("master", dest.value.symref));
 
+	printf("testing print functionality:\n");
+	reftable_stack_print_directory(dir);
+
 	reftable_ref_record_release(&dest);
 	reftable_stack_destroy(st);
 	clear_dir(dir);

@@ -1390,6 +1390,7 @@ int reftable_stack_print_directory(const char *stackdir)
 	reftable_table_from_merged_table(&table, merged);
 	err = reftable_table_print(&table);
 done:
-	reftable_stack_destroy(stack);
+	if (stack)
+		reftable_stack_destroy(stack);
 	return err;
 }
