@@ -158,7 +158,11 @@ static void test_reftable_stack_add_one(void)
 	EXPECT(0 == strcmp("master", dest.value.symref));
 
 	printf("testing print functionality:\n");
-	reftable_stack_print_directory(dir);
+	err = reftable_stack_print_directory(dir, GIT_SHA1_FORMAT_ID);
+	EXPECT_ERR(err);
+
+	err = reftable_stack_print_directory(dir, GIT_SHA256_FORMAT_ID);
+	EXPECT(err == REFTABLE_FORMAT_ERROR);
 
 	reftable_ref_record_release(&dest);
 	reftable_stack_destroy(st);

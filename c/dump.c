@@ -22,6 +22,7 @@ https://developers.google.com/open-source/licenses/bsd
 #include "reftable-reader.h"
 #include "reftable-stack.h"
 #include "reftable-generic.h"
+#include "hash.h"
 
 static int compact_stack(const char *stackdir)
 {
@@ -49,6 +50,7 @@ static void print_help(void)
 	       "  -c compact\n"
 	       "  -t dump table\n"
 	       "  -s dump stack\n"
+	       "  -6 sha256 hash format\n"
 	       "  -h this help\n"
 	       "\n");
 }
@@ -59,6 +61,7 @@ int reftable_dump_main(int argc, char *const *argv)
 	int opt_dump_table = 0;
 	int opt_dump_stack = 0;
 	int opt_compact = 0;
+	uint32_t opt_hash_id = GIT_SHA1_FORMAT_ID;
 	const char *arg = NULL, *argv0 = argv[0];
 
 	for (; argc > 1; argv++, argc--)
@@ -66,6 +69,8 @@ int reftable_dump_main(int argc, char *const *argv)
 			break;
 		else if (!strcmp("-t", argv[1]))
 			opt_dump_table = 1;
+		else if (!strcmp("-6", argv[1]))
+			opt_hash_id = GIT_SHA256_FORMAT_ID;
 		else if (!strcmp("-s", argv[1]))
 			opt_dump_stack = 1;
 		else if (!strcmp("-c", argv[1]))
@@ -86,7 +91,7 @@ int reftable_dump_main(int argc, char *const *argv)
 	if (opt_dump_table) {
 		err = reftable_reader_print_file(arg);
 	} else if (opt_dump_stack) {
-		err = reftable_stack_print_directory(arg);
+		err = reftable_stack_print_directory(arg, opt_hash_id);
 	} else if (opt_compact) {
 		err = compact_stack(arg);
 	}

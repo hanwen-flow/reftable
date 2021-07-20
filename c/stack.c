@@ -1375,10 +1375,10 @@ done:
 	return err;
 }
 
-int reftable_stack_print_directory(const char *stackdir)
+int reftable_stack_print_directory(const char *stackdir, uint32_t hash_id)
 {
 	struct reftable_stack *stack = NULL;
-	struct reftable_write_options cfg = { 0 };
+	struct reftable_write_options cfg = { .hash_id = hash_id };
 	struct reftable_merged_table *merged = NULL;
 	struct reftable_table table = { NULL };
 
