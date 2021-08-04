@@ -6,6 +6,8 @@ license that can be found in the LICENSE file or at
 https://developers.google.com/open-source/licenses/bsd
 */
 
+#include "hash.h"
+
 #include "reftable-blocksource.h"
 #include "reftable-error.h"
 #include "reftable-merged.h"
@@ -16,7 +18,6 @@ https://developers.google.com/open-source/licenses/bsd
 #include "reftable-reader.h"
 #include "reftable-stack.h"
 #include "reftable-generic.h"
-#include "hash.h"
 
 #include <stddef.h>
 #include <stdio.h>
