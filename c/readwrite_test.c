@@ -121,6 +121,7 @@ static void test_log_buffer_size(void)
 		.block_size = 4096,
 	};
 	int err;
+	int i;
 	struct reftable_log_record log = { .refname = "refs/heads/master",
 					   .update_index = 0xa,
 					   .value_type = REFTABLE_LOG_UPDATE,
@@ -138,7 +139,7 @@ static void test_log_buffer_size(void)
 	   hash, to ensure that the compressed part is larger than the original.
 	*/
 	uint8_t hash1[GIT_SHA1_RAWSZ], hash2[GIT_SHA1_RAWSZ];
-	for (int i = 0; i < GIT_SHA1_RAWSZ; i++) {
+	for (i = 0; i < GIT_SHA1_RAWSZ; i++) {
 		hash1[i] = (uint8_t)(rand() % 256);
 		hash2[i] = (uint8_t)(rand() % 256);
 	}

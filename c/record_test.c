@@ -186,6 +186,7 @@ static void test_reftable_log_record_equal(void)
 
 static void test_reftable_log_record_roundtrip(void)
 {
+	int i;
 	struct reftable_log_record in[2] = {
 		{
 			.refname = xstrdup("refs/heads/master"),
@@ -209,7 +210,7 @@ static void test_reftable_log_record_roundtrip(void)
 	};
 	set_test_hash(in[0].update.new_hash, 1);
 	set_test_hash(in[0].update.old_hash, 2);
-	for (int i = 0; i < ARRAY_SIZE(in); i++) {
+	for (i = 0; i < ARRAY_SIZE(in); i++) {
 		struct reftable_record rec = { NULL };
 		struct strbuf key = STRBUF_INIT;
 		uint8_t buffer[1024] = { 0 };
