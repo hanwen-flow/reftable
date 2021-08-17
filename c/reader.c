@@ -176,7 +176,7 @@ int init_reader(struct reftable_reader *r, struct reftable_block_source *source,
 		err = REFTABLE_FORMAT_ERROR;
 		goto done;
 	}
-	
+
 	err = block_source_read_block(source, &header, 0, read_size);
 	if (err != header_size(2) + 1) {
 		err = REFTABLE_IO_ERROR;
