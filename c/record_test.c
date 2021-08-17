@@ -192,14 +192,16 @@ static void test_reftable_log_record_roundtrip(void)
 			.refname = xstrdup("refs/heads/master"),
 			.update_index = 42,
 			.value_type = REFTABLE_LOG_UPDATE,
-			.update = {
-				.old_hash = reftable_malloc(GIT_SHA1_RAWSZ),
-				.new_hash = reftable_malloc(GIT_SHA1_RAWSZ),
-				.name = xstrdup("han-wen"),
-				.email = xstrdup("hanwen@google.com"),
-				.message = xstrdup("test"),
-				.time = 1577123507,
-				.tz_offset = 100,
+			.value = {
+				.update = {
+					.old_hash = reftable_malloc(GIT_SHA1_RAWSZ),
+					.new_hash = reftable_malloc(GIT_SHA1_RAWSZ),
+					.name = xstrdup("han-wen"),
+					.email = xstrdup("hanwen@google.com"),
+					.message = xstrdup("test"),
+					.time = 1577123507,
+					.tz_offset = 100,
+				},
 			}
 		},
 		{
@@ -208,8 +210,8 @@ static void test_reftable_log_record_roundtrip(void)
 			.value_type = REFTABLE_LOG_DELETION,
 		}
 	};
-	set_test_hash(in[0].update.new_hash, 1);
-	set_test_hash(in[0].update.old_hash, 2);
+	set_test_hash(in[0].value.update.new_hash, 1);
+	set_test_hash(in[0].value.update.old_hash, 2);
 	for (i = 0; i < ARRAY_SIZE(in); i++) {
 		struct reftable_record rec = { NULL };
 		struct strbuf key = STRBUF_INIT;
@@ -222,12 +224,14 @@ static void test_reftable_log_record_roundtrip(void)
 		struct reftable_log_record out = {
 			.refname = xstrdup("old name"),
 			.value_type = REFTABLE_LOG_UPDATE,
-			.update = {
-				.new_hash = reftable_calloc(GIT_SHA1_RAWSZ),
-				.old_hash = reftable_calloc(GIT_SHA1_RAWSZ),
-				.name = xstrdup("old name"),
-				.email = xstrdup("old@email"),
-				.message = xstrdup("old message"),
+			.value = {
+				.update = {
+					.new_hash = reftable_calloc(GIT_SHA1_RAWSZ),
+					.old_hash = reftable_calloc(GIT_SHA1_RAWSZ),
+					.name = xstrdup("old name"),
+					.email = xstrdup("old@email"),
+					.message = xstrdup("old message"),
+				},
 			},
 		};
 		struct reftable_record rec_out = { NULL };

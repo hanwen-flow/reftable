@@ -165,7 +165,7 @@ void reftable_stack_destroy(struct reftable_stack *st)
 			reftable_reader_free(st->readers[i]);
 
 			if (filename.len) {
-				// On Windows, can only unlink after closing.
+				/* On Windows, can only unlink after closing. */
 				unlink(filename.buf);
 			}
 		}
@@ -273,7 +273,7 @@ static int reftable_stack_reload_once(struct reftable_stack *st, char **names,
 			reader_close(cur[i]);
 			reftable_reader_free(cur[i]);
 
-			// On Windows, can only unlink after closing.
+			/* On Windows, can only unlink after closing. */
 			unlink(filename.buf);
 
 			strbuf_release(&filename);
@@ -843,7 +843,7 @@ static int stack_write_compact(struct reftable_stack *st,
 		}
 
 		if (config && config->time > 0 &&
-		    log.update.time < config->time) {
+		    log.value.update.time < config->time) {
 			continue;
 		}
 

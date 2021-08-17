@@ -90,8 +90,8 @@ static void write_table(char ***names, struct strbuf *buf, int N,
 		log.refname = name;
 		log.update_index = update_index;
 		log.value_type = REFTABLE_LOG_UPDATE;
-		log.update.new_hash = hash;
-		log.update.message = "message";
+		log.value.update.new_hash = hash;
+		log.value.update.message = "message";
 
 		n = reftable_writer_add_log(w, &log);
 		EXPECT(n == 0);
@@ -104,8 +104,8 @@ static void write_table(char ***names, struct strbuf *buf, int N,
 	for (i = 0; i < stats->ref_stats.blocks; i++) {
 		int off = i * opts.block_size;
 		if (off == 0) {
-			off = header_size((hash_id == GIT_SHA256_FORMAT_ID) ? 2 :
-										  1);
+			off = header_size(
+				(hash_id == GIT_SHA256_FORMAT_ID) ? 2 : 1);
 		}
 		EXPECT(buf->buf[off] == 'r');
 	}
@@ -122,16 +122,17 @@ static void test_log_buffer_size(void)
 	};
 	int err;
 	int i;
-	struct reftable_log_record log = { .refname = "refs/heads/master",
-					   .update_index = 0xa,
-					   .value_type = REFTABLE_LOG_UPDATE,
-					   .update = {
-						   .name = "Han-Wen Nienhuys",
-						   .email = "hanwen@google.com",
-						   .tz_offset = 100,
-						   .time = 0x5e430672,
-						   .message = "commit: 9\n",
-					   } };
+	struct reftable_log_record
+		log = { .refname = "refs/heads/master",
+			.update_index = 0xa,
+			.value_type = REFTABLE_LOG_UPDATE,
+			.value = { .update = {
+					   .name = "Han-Wen Nienhuys",
+					   .email = "hanwen@google.com",
+					   .tz_offset = 100,
+					   .time = 0x5e430672,
+					   .message = "commit: 9\n",
+				   } } };
 	struct reftable_writer *w =
 		reftable_new_writer(&strbuf_add_void, &buf, &opts);
 
@@ -143,8 +144,8 @@ static void test_log_buffer_size(void)
 		hash1[i] = (uint8_t)(rand() % 256);
 		hash2[i] = (uint8_t)(rand() % 256);
 	}
-	log.update.old_hash = hash1;
-	log.update.new_hash = hash2;
+	log.value.update.old_hash = hash1;
+	log.value.update.new_hash = hash2;
 	reftable_writer_set_limits(w, update_index, update_index);
 	err = reftable_writer_add_log(w, &log);
 	EXPECT_ERR(err);
@@ -194,8 +195,8 @@ static void test_log_write_read(void)
 		log.refname = names[i];
 		log.update_index = i;
 		log.value_type = REFTABLE_LOG_UPDATE;
-		log.update.old_hash = hash1;
-		log.update.new_hash = hash2;
+		log.value.update.old_hash = hash1;
+		log.value.update.new_hash = hash2;
 
 		err = reftable_writer_add_log(w, &log);
 		EXPECT_ERR(err);

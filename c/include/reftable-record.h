@@ -94,7 +94,7 @@ struct reftable_log_record {
 			int16_t tz_offset;
 			char *message;
 		} update;
-	};
+	} value;
 };
 
 /* returns whether 'ref' represents the deletion of a log record. */

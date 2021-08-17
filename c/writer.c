@@ -329,24 +329,24 @@ int reftable_writer_add_log(struct reftable_writer *w,
 	if (log->refname == NULL)
 		return REFTABLE_API_ERROR;
 
-	input_log_message = log->update.message;
-	if (!w->opts.exact_log_message && log->update.message) {
-		strbuf_addstr(&cleaned_message, log->update.message);
+	input_log_message = log->value.update.message;
+	if (!w->opts.exact_log_message && log->value.update.message) {
+		strbuf_addstr(&cleaned_message, log->value.update.message);
 		while (cleaned_message.len &&
 		       cleaned_message.buf[cleaned_message.len - 1] == '\n')
 			strbuf_setlen(&cleaned_message,
 				      cleaned_message.len - 1);
 		if (strchr(cleaned_message.buf, '\n')) {
-			// multiple lines not allowed.
+			/* multiple lines not allowed. */
 			err = REFTABLE_API_ERROR;
 			goto done;
 		}
 		strbuf_addstr(&cleaned_message, "\n");
-		log->update.message = cleaned_message.buf;
+		log->value.update.message = cleaned_message.buf;
 	}
 
 	err = reftable_writer_add_log_verbatim(w, log);
-	log->update.message = input_log_message;
+	log->value.update.message = input_log_message;
 done:
 	strbuf_release(&cleaned_message);
 	return err;

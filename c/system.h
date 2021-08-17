@@ -9,7 +9,7 @@ https://developers.google.com/open-source/licenses/bsd
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
-// This header glues the reftable library to the rest of Git
+/* This header glues the reftable library to the rest of Git */
 
 #include "git-compat-util.h"
 #include "strbuf.h"

@@ -386,9 +386,9 @@ static void test_reftable_stack_add(void)
 		logs[i].update_index = N + i + 1;
 		logs[i].value_type = REFTABLE_LOG_UPDATE;
 
-		logs[i].update.new_hash = reftable_malloc(GIT_SHA1_RAWSZ);
-		logs[i].update.email = xstrdup("identity@invalid");
-		set_test_hash(logs[i].update.new_hash, i);
+		logs[i].value.update.new_hash = reftable_malloc(GIT_SHA1_RAWSZ);
+		logs[i].value.update.email = xstrdup("identity@invalid");
+		set_test_hash(logs[i].value.update.new_hash, i);
 	}
 
 	for (i = 0; i < N; i++) {
@@ -451,10 +451,10 @@ static void test_reftable_stack_log_normalize(void)
 	struct reftable_log_record input = { .refname = "branch",
 					     .update_index = 1,
 					     .value_type = REFTABLE_LOG_UPDATE,
-					     .update = {
-						     .new_hash = h1,
-						     .old_hash = h2,
-					     } };
+					     .value = { .update = {
+								.new_hash = h1,
+								.old_hash = h2,
+							} } };
 	struct reftable_log_record dest = {
 		.update_index = 0,
 	};
@@ -466,25 +466,25 @@ static void test_reftable_stack_log_normalize(void)
 	err = reftable_new_stack(&st, dir, cfg);
 	EXPECT_ERR(err);
 
-	input.update.message = "one\ntwo";
+	input.value.update.message = "one\ntwo";
 	err = reftable_stack_add(st, &write_test_log, &arg);
 	EXPECT(err == REFTABLE_API_ERROR);
 
-	input.update.message = "one";
+	input.value.update.message = "one";
 	err = reftable_stack_add(st, &write_test_log, &arg);
 	EXPECT_ERR(err);
 
 	err = reftable_stack_read_log(st, input.refname, &dest);
 	EXPECT_ERR(err);
-	EXPECT(0 == strcmp(dest.update.message, "one\n"));
+	EXPECT(0 == strcmp(dest.value.update.message, "one\n"));
 
-	input.update.message = "two\n";
+	input.value.update.message = "two\n";
 	arg.update_index = 2;
 	err = reftable_stack_add(st, &write_test_log, &arg);
 	EXPECT_ERR(err);
 	err = reftable_stack_read_log(st, input.refname, &dest);
 	EXPECT_ERR(err);
-	EXPECT(0 == strcmp(dest.update.message, "two\n"));
+	EXPECT(0 == strcmp(dest.value.update.message, "two\n"));
 
 	/* cleanup */
 	reftable_stack_destroy(st);
@@ -526,10 +526,11 @@ static void test_reftable_stack_tombstone(void)
 		logs[i].update_index = 42;
 		if (i % 2 == 0) {
 			logs[i].value_type = REFTABLE_LOG_UPDATE;
-			logs[i].update.new_hash =
+			logs[i].value.update.new_hash =
 				reftable_malloc(GIT_SHA1_RAWSZ);
-			set_test_hash(logs[i].update.new_hash, i);
-			logs[i].update.email = xstrdup("identity@invalid");
+			set_test_hash(logs[i].value.update.new_hash, i);
+			logs[i].value.update.email =
+				xstrdup("identity@invalid");
 		}
 	}
 	for (i = 0; i < N; i++) {
@@ -708,10 +709,10 @@ static void test_reflog_expire(void)
 		logs[i].refname = xstrdup(buf);
 		logs[i].update_index = i;
 		logs[i].value_type = REFTABLE_LOG_UPDATE;
-		logs[i].update.time = i;
-		logs[i].update.new_hash = reftable_malloc(GIT_SHA1_RAWSZ);
-		logs[i].update.email = xstrdup("identity@invalid");
-		set_test_hash(logs[i].update.new_hash, i);
+		logs[i].value.update.time = i;
+		logs[i].value.update.new_hash = reftable_malloc(GIT_SHA1_RAWSZ);
+		logs[i].value.update.email = xstrdup("identity@invalid");
+		set_test_hash(logs[i].value.update.new_hash, i);
 	}
 
 	for (i = 1; i <= N; i++) {

@@ -79,11 +79,12 @@ static int removePath(const char *pathname, const struct stat *sbuf, int type)
 	return 0;
 }
 
-// See
-// https://stackoverflow.com/questions/2256945/removing-a-non-empty-directory-programmatically-in-c-or-c
+/* See
+   https://stackoverflow.com/questions/2256945/removing-a-non-empty-directory-programmatically-in-c-or-c
+*/
 int remove_dir_recursively(struct strbuf *path, int flags)
 {
-	// Twice, because ftw visits dirs before subdirs.
+	/* Twice, because ftw visits dirs before subdirs. */
 	ftw(path->buf, removePath, 10);
 	return ftw(path->buf, removePath, 10);
 }
