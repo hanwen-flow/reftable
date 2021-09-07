@@ -15,6 +15,16 @@ https://developers.google.com/open-source/licenses/bsd
 #include "reftable-tests.h"
 #include "test_framework.h"
 
+void merged_iter_pqueue_check(struct merged_iter_pqueue pq)
+{
+	int i = 0;
+	for (i = 1; i < pq.len; i++) {
+		int parent = (i - 1) / 2;
+
+		EXPECT(pq_less(pq.heap[parent], pq.heap[i]));
+	}
+}
+
 static void test_pq(void)
 {
 	char *names[54] = { NULL };

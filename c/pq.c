@@ -12,7 +12,7 @@ https://developers.google.com/open-source/licenses/bsd
 #include "system.h"
 #include "basics.h"
 
-static int pq_less(struct pq_entry a, struct pq_entry b)
+int pq_less(struct pq_entry a, struct pq_entry b)
 {
 	struct strbuf ak = STRBUF_INIT;
 	struct strbuf bk = STRBUF_INIT;
@@ -39,16 +39,6 @@ struct pq_entry merged_iter_pqueue_top(struct merged_iter_pqueue pq)
 int merged_iter_pqueue_is_empty(struct merged_iter_pqueue pq)
 {
 	return pq.len == 0;
-}
-
-void merged_iter_pqueue_check(struct merged_iter_pqueue pq)
-{
-	int i = 0;
-	for (i = 1; i < pq.len; i++) {
-		int parent = (i - 1) / 2;
-
-		assert(pq_less(pq.heap[parent], pq.heap[i]));
-	}
 }
 
 struct pq_entry merged_iter_pqueue_remove(struct merged_iter_pqueue *pq)
