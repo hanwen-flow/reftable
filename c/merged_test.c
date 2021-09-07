@@ -49,8 +49,8 @@ static void write_test_table(struct strbuf *buf,
 	for (i = 0; i < n; i++) {
 		uint64_t before = refs[i].update_index;
 		int n = reftable_writer_add_ref(w, &refs[i]);
-		assert(n == 0);
-		assert(before == refs[i].update_index);
+		EXPECT(n == 0);
+		EXPECT(before == refs[i].update_index);
 	}
 
 	err = reftable_writer_close(w);
@@ -219,9 +219,9 @@ static void test_merged(void)
 	}
 	reftable_iterator_destroy(&it);
 
-	assert(ARRAY_SIZE(want) == len);
+	EXPECT(ARRAY_SIZE(want) == len);
 	for (i = 0; i < len; i++) {
-		assert(reftable_ref_record_equal(&want[i], &out[i],
+		EXPECT(reftable_ref_record_equal(&want[i], &out[i],
 						 GIT_SHA1_RAWSZ));
 	}
 	for (i = 0; i < len; i++) {
@@ -270,7 +270,7 @@ static void test_default_write_opts(void)
 	EXPECT_ERR(err);
 
 	hash_id = reftable_reader_hash_id(rd);
-	assert(hash_id == GIT_SHA1_FORMAT_ID);
+	EXPECT(hash_id == GIT_SHA1_FORMAT_ID);
 
 	reftable_table_from_reader(&tab[0], rd);
 	err = reftable_new_merged_table(&merged, tab, 1, GIT_SHA1_FORMAT_ID);
