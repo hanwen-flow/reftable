@@ -12,13 +12,13 @@ https://developers.google.com/open-source/licenses/bsd
 #include "system.h"
 #include "basics.h"
 
-int pq_less(struct pq_entry a, struct pq_entry b)
+int pq_less(struct pq_entry *a, struct pq_entry *b)
 {
 	struct strbuf ak = STRBUF_INIT;
 	struct strbuf bk = STRBUF_INIT;
 	int cmp = 0;
-	reftable_record_key(&a.rec, &ak);
-	reftable_record_key(&b.rec, &bk);
+	reftable_record_key(&a->rec, &ak);
+	reftable_record_key(&b->rec, &bk);
 
 	cmp = strbuf_cmp(&ak, &bk);
 
@@ -26,7 +26,7 @@ int pq_less(struct pq_entry a, struct pq_entry b)
 	strbuf_release(&bk);
 
 	if (cmp == 0)
-		return a.index > b.index;
+		return a->index > b->index;
 
 	return cmp < 0;
 }
@@ -53,10 +53,10 @@ struct pq_entry merged_iter_pqueue_remove(struct merged_iter_pqueue *pq)
 		int min = i;
 		int j = 2 * i + 1;
 		int k = 2 * i + 2;
-		if (j < pq->len && pq_less(pq->heap[j], pq->heap[i])) {
+		if (j < pq->len && pq_less(&pq->heap[j], &pq->heap[i])) {
 			min = j;
 		}
-		if (k < pq->len && pq_less(pq->heap[k], pq->heap[min])) {
+		if (k < pq->len && pq_less(&pq->heap[k], &pq->heap[min])) {
 			min = k;
 		}
 
@@ -84,7 +84,7 @@ void merged_iter_pqueue_add(struct merged_iter_pqueue *pq, struct pq_entry e)
 	i = pq->len - 1;
 	while (i > 0) {
 		int j = (i - 1) / 2;
-		if (pq_less(pq->heap[j], pq->heap[i])) {
+		if (pq_less(&pq->heap[j], &pq->heap[i])) {
 			break;
 		}
 
