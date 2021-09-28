@@ -311,7 +311,7 @@ func (w *Writer) Close() error {
 	return nil
 }
 
-const debug = false
+const debugWriter = false
 
 func (w *Writer) getBlockStats(typ byte) *BlockStats {
 	switch typ {
@@ -358,7 +358,7 @@ func (w *Writer) flushBlock() error {
 	blockStats.Blocks++
 	w.Stats.Blocks++
 
-	if debug {
+	if debugWriter {
 		log.Printf("block %c off %d sz %d (%d)",
 			w.blockWriter.getType(), w.next, len(raw), getU24(raw[w.blockWriter.headerOff+1:]))
 	}
