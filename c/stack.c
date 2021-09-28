@@ -107,7 +107,7 @@ done:
 
 int read_lines(const char *filename, char ***namesp)
 {
-	int fd = open(filename, O_RDONLY, 0644);
+	int fd = open(filename, O_RDONLY);
 	int err = 0;
 	if (fd < 0) {
 		if (errno == ENOENT) {
