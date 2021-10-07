@@ -17,11 +17,11 @@ https://developers.google.com/open-source/licenses/bsd
 
 void merged_iter_pqueue_check(struct merged_iter_pqueue pq)
 {
-	int i = 0;
+	int i;
 	for (i = 1; i < pq.len; i++) {
 		int parent = (i - 1) / 2;
 
-		assert(pq_less(&pq.heap[parent], &pq.heap[i]));
+		EXPECT(pq_less(&pq.heap[parent], &pq.heap[i]));
 	}
 }
 
