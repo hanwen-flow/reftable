@@ -132,7 +132,7 @@ done:
 
 int block_writer_finish(struct block_writer *w)
 {
-	int i = 0;
+	int i;
 	for (i = 0; i < w->restart_len; i++) {
 		put_be24(w->buf + w->next, w->restarts[i]);
 		w->next += 3;
@@ -144,23 +144,21 @@ int block_writer_finish(struct block_writer *w)
 
 	if (block_writer_type(w) == BLOCK_TYPE_LOG) {
 		int block_header_skip = 4 + w->header_off;
-		uint8_t *compressed = NULL;
-		int zresult = 0;
 		uLongf src_len = w->next - block_header_skip;
-		size_t dest_cap = src_len;
+		uLongf dest_cap = src_len * 1.001 + 12;
 
-		compressed = reftable_malloc(dest_cap);
+		uint8_t *compressed = reftable_malloc(dest_cap);
 		while (1) {
 			uLongf out_dest_len = dest_cap;
-
-			zresult = compress2(compressed, &out_dest_len,
-					    w->buf + block_header_skip, src_len,
-					    9);
-			if (zresult == Z_BUF_ERROR) {
+			int zresult = compress2(compressed, &out_dest_len,
+						w->buf + block_header_skip,
+						src_len, 9);
+			if (zresult == Z_BUF_ERROR && dest_cap < LONG_MAX) {
 				dest_cap *= 2;
 				compressed =
 					reftable_realloc(compressed, dest_cap);
-				continue;
+				if (compressed)
+					continue;
 			}
 
 			if (Z_OK != zresult) {
