@@ -46,8 +46,10 @@ static int count_dir_entries(const char *dirname)
 	return len;
 }
 
-// Work linenumber into the tempdir, so we can see which tests forget to
-// cleanup.
+/*
+ * Work linenumber into the tempdir, so we can see which tests forget to
+ * cleanup.
+ */
 static char *get_tmp_template(int linenumber)
 {
 	const char *tmp = getenv("TMPDIR");
