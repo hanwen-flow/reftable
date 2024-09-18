@@ -1,0 +1,10 @@
+# Generated file, do not edit. If you want to disable clang, just delete this file.
+build:clang --action_env=PATH=/usr/lib64/llvm8.0/bin:/home/hanwen/go/bin:/home/hanwen/go/bin:/home/hanwen/src/IDEA/bin:/home/hanwen/bin/:/home/hanwen/vc/git-cl:/home/hanwen/usr/bin/:/home/hanwen/go/bin:/home/hanwen/vc/go/bin:/home/hanwen/go/bin:/usr/share/Modules/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/home/hanwen/bin:/enenvironmentshseen/
+build:clang --action_env=CC=clang
+build:clang --action_env=CXX=clang++
+build:clang --action_env=LLVM_CONFIG=/usr/lib64/llvm8.0/bin/llvm-config
+build:clang --repo_env=LLVM_CONFIG=/usr/lib64/llvm8.0/bin/llvm-config
+build:clang --linkopt=-L/usr/lib64/llvm8.0/lib
+build:clang --linkopt=-Wl,-rpath,/usr/lib64/llvm8.0/lib
+
+
