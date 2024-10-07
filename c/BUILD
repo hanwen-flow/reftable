@@ -231,6 +231,7 @@ cc_test(
     name = "%s_valgrind_test" % t,
     srcs = [ "valgrind_test.sh" ],
     args = [ t ],
+    tags = [ "valgrind" ],
     data = [ t ])
  for t in ["record_test",
            "merged_test",

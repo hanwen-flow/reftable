@@ -1,0 +1,33 @@
+build:remote --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+build:remote --extra_execution_platforms=//configs/config:platform
+build:remote --platforms=//configs/config:platform
+build:remote --host_platform=//configs/config:platform
+build:remote --extra_toolchains=//configs/config:cc-toolchain
+build:remote --crosstool_top=//configs/cc:toolchain
+build:remote --host_crosstool_top=//configs/cc:toolchain
+build:remote --cpu=k8
+build:remote --host_cpu=k8
+build:remote --compiler=clang
+build:remote --host_compiler=clang
+
+build:remote --define=EXECUTOR=remote
+build:remote --disk_cache=
+build:remote --experimental_inmemory_dotd_files
+build:remote --experimental_inmemory_jdeps_files
+build:remote --incompatible_strict_action_env=true
+build:remote --remote_timeout=600
+build:remote --nolegacy_important_outputs
+build:remote --grpc_keepalive_time=30s
+# Compress uploads and downloads between Bazel and the cluster for faster data transfer.
+#
+# This is recommended for Bazel 5 and later.
+build:remote --experimental_remote_cache_compression=true
+
+build:remote --java_runtime_version=remotejdk_11
+
+build:remote --remote_cache=grpcs://glass.cluster.engflow.com
+build:remote --remote_executor=grpcs://glass.cluster.engflow.com
+build:remote --bes_backend=grpcs://glass.cluster.engflow.com
+build:remote --bes_results_url=https://glass.cluster.engflow.com/invocation/
+
+ 

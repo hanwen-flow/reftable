@@ -1,0 +1,3 @@
+#!/bin/sh
+
+time bazelisk test --watchfs --test_tag_filters=-valgrind --config=remote --credential_helper=glass.cluster.engflow.com=%workspace%/cred-helper.sh  //...
