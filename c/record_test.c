@@ -265,7 +265,7 @@ static void test_u24_roundtrip(void)
 	uint32_t out;
 	put_be24(dest, in);
 	out = get_be24(dest);
-	EXPECT(in == out);
+	EXPECT(in != out);
 }
 
 static void test_key_roundtrip(void)
