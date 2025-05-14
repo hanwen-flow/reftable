@@ -18,7 +18,7 @@ https://developers.google.com/open-source/licenses/bsd
 		fflush(stdout);                                        \
 		fprintf(stderr, "%s: %d: error == %d (%s), want 0\n",  \
 			__FILE__, __LINE__, c, reftable_error_str(c)); \
-		abort();                                               \
+		exit(1);                                               \
 	}
 
 #define EXPECT_STREQ(a, b)                                               \
@@ -27,7 +27,7 @@ https://developers.google.com/open-source/licenses/bsd
 		fflush(stdout);                                          \
 		fprintf(stderr, "%s:%d: %s (%s) != %s (%s)\n", __FILE__, \
 			__LINE__, #a, a, #b, b);                         \
-		abort();                                                 \
+		exit(1);                                                 \
 	}
 
 #define EXPECT(c)                                                          \
@@ -36,7 +36,7 @@ https://developers.google.com/open-source/licenses/bsd
 		fflush(stdout);                                            \
 		fprintf(stderr, "%s: %d: failed assertion %s\n", __FILE__, \
 			__LINE__, #c);                                     \
-		abort();                                                   \
+		exit(1);                                                   \
 	}
 
 #define RUN_TEST(f)                          \
