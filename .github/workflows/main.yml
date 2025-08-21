@@ -6,19 +6,18 @@ on:
 jobs:
 
   build:
-    run-tests:
-      runs-on:
-        - self-hosted
-        - "os=linux"
-        - "arch=x64"
-        - "engflow-cluster=local"
-        - "engflow-bento=mybento"
+    runs-on:
+    - self-hosted
+    - "os=linux"
+    - "arch=x64"
+    - "engflow-cluster=local"
+    - "engflow-bento=mybento"
 
-      steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
 
-      - name: Run presubmit checks
-        run: |
-          bazel test //...
+    - name: Run presubmit checks
+      run: |
+        bazel test //...
