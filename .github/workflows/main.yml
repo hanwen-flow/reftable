@@ -1,4 +1,4 @@
-name: CI
+name: CI (bento)
 
 on:
   workflow_dispatch:
