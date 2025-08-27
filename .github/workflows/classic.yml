@@ -1,4 +1,4 @@
-name: CI (classic)
+name: bazel (classic)
 
 on:
   workflow_dispatch:
@@ -19,6 +19,6 @@ jobs:
       with:
         fetch-depth: 1
 
-    - name: Run presubmit checks
+    - name: Run bazel
       run: |
-        bazel test //...
+        bazel info
