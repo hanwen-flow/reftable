@@ -21,4 +21,4 @@ jobs:
 
     - name: Run bazel
       run: |
-        bazel info
+        id ; pwd ; bazel info
