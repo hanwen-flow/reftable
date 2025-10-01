@@ -12,6 +12,7 @@ jobs:
     - "arch=x64"
     - "engflow-cluster=local"
     - "engflow-bento-name=mybento"
+    - "engflow-bento-allow-save=true"
 
     steps:
     - uses: actions/checkout@v4
