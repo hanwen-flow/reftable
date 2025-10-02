@@ -1,0 +1,24 @@
+name: bazel, fail (bento)
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  build:
+    runs-on:
+    - self-hosted
+    - "os=linux"
+    - "arch=x64"
+    - "engflow-cluster=local"
+    - "engflow-bento-name=mybento"
+    - "engflow-bento-allow-save=true"
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+
+    - name: Run bazel
+      run: |
+        set ; false
