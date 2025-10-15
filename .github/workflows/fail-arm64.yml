@@ -1,4 +1,4 @@
-name: CI (bento)
+name: bazel, fail (bento), arm64
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ jobs:
     runs-on:
     - self-hosted
     - "os=linux"
-    - "arch=x64"
+    - "arch=arm64"
     - "engflow-cluster=local"
     - "engflow-bento-name=mybento"
     - "engflow-bento-allow-save=true"
@@ -19,6 +19,6 @@ jobs:
       with:
         fetch-depth: 1
 
-    - name: Run presubmit checks
+    - name: Run bazel
       run: |
-        bazel test //...
+        set ; false

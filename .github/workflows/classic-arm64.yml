@@ -1,0 +1,24 @@
+name: bazel (classic) arm64
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  build:
+    runs-on:
+    - self-hosted
+    - "os=linux"
+    - "arch=arm64"
+    - "engflow-cluster=local"
+    - "engflow-runner-id=${{ github.repository_id }}_presubmit-checks_${{ github.run_id }}_${{ github.run_number }}_${{ github.run_attempt }}"
+    - "engflow-container-image=docker://us-central1-docker.pkg.dev/engflow-pyrite-4aecd160/us-central1-docker/bento_base@sha256:2655b69d18815340c25e0e5dd9992c6f1877aa4733014c2a721b8b47f5f289e5"
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+
+    - name: Run bazel
+      run: |
+        id ; pwd ; bazel info
