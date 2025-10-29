@@ -11,7 +11,7 @@ jobs:
     - "os=linux"
     - "arch=arm64"
     - "engflow-cluster=local"
-    - "engflow-bento-name=mybento"
+    - "engflow-bento-name=mybento-arm64"
     - "engflow-bento-allow-save=true"
 
     steps:
