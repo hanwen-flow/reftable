@@ -1,3 +1,15 @@
+# EngFlow CI-Runners
+
+This a fork of github.com/hanwen/reftable, with tweaks to work with
+EngFlow warm bazel CI Runners.
+
+   * .github/workflows/*.yml - GitHub Actions configuration
+
+   * Containerfile - podman/docker build to make a container for a build to work.
+
+   * bk.yaml - YAML steps for Buildkite
+
+# Original readme.
 
 This is a from scratch implementation of the reftable format for
 storing Git ref and reflog data.

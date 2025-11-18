@@ -1,0 +1,15 @@
+steps:
+  - label: "Run tests"
+    command: "set && git log -1 HEAD && bazelisk info"
+    agents:
+    - "arch=amd64"
+    - "engflow-bento-name=mybento"
+    - "engflow-cluster=local-hanwen"
+    - "engflow-agent-env=BUILDKITE_GIT_FETCH_FLAGS=--depth=1"
+    - "engflow-agent-env=BUILDKITE_GIT_CLONE_FLAGS=--depth=1"
+    - "os=linux"
+    - "engflow-bento-allow-save=true"
+    env:
+      ARCH: "x64"
+      CLUSTER_HOST: "demo.engflow.com:8080"
+      OS: "linux"
