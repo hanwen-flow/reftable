@@ -1,3 +1,6 @@
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
+
 # Mirror core-git COPTS so reftable compiles without warning in CGit.
 GIT_COPTS = [
     "-Wall",

@@ -48,6 +48,6 @@ RUN mkdir /myhomedir &&  \
 USER build
 WORKDIR /myhomedir
 
-# 8.2.1 for the hanwen-flow/reftable repo
+# 9.1.1 for the hanwen-flow/reftable repo
 RUN mkdir bazelisk && cd bazelisk && touch MODULE.bazel && \
-   echo 8.2.1 > .bazelversion && (bazelisk || true) 
+   echo 9.1.1 > .bazelversion && (bazelisk || true)
